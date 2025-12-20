@@ -1,0 +1,13 @@
+2025-12-20T11:40:15.880279Z  INFO reovim: reovim starting
+2025-12-20T11:40:15.881008Z  INFO reovim: opening file test.txt
+2025-12-20T11:40:15.882175Z  INFO reovim: (78, 11)
+2025-12-20T11:40:15.882321Z  INFO reovim: 0 hello world!
+2025-12-20T11:40:15.882483Z  INFO reovim: 1 why dis test
+2025-12-20T11:40:15.882554Z  INFO reovim: 2 wat
+2025-12-20T11:40:15.882621Z  INFO reovim: 3 hello
+2025-12-20T11:40:15.882686Z  INFO reovim: 4 hello world!
+2025-12-20T11:40:15.882755Z  INFO reovim: 5 hello world!
+2025-12-20T11:40:15.882821Z  INFO reovim: 6 hello world!
+2025-12-20T11:40:15.882886Z  INFO reovim: 7 hello world!
+2025-12-20T11:40:15.882951Z  INFO reovim: 8 hello world!
+2025-12-20T11:40:23.491283Z  INFO reovim: reovim shutting down

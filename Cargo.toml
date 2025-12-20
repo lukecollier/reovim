@@ -4,3 +4,10 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+crossterm = "0.29.0"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+tracing-appender = "0.2"
+unicode-width = "0.2.2"
+anyhow = "1.0.100"
+crossbeam = "0.8.4"
