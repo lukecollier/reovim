@@ -2,32 +2,40 @@ mod event;
 mod tui;
 
 use std::{
-    ffi::OsStr,
-    fs::File,
-    io::{Read, Stdout, stdout},
-    ops::{Index, IndexMut, Range, RangeBounds},
-    os::unix::fs::FileExt,
+    fs::{File, OpenOptions},
+    io::{Read, Write, stdout},
+    ops::{Index, IndexMut, Range},
     path::PathBuf,
-    str::FromStr,
 };
 
 use anyhow::Result;
 use crossterm::{
     ExecutableCommand,
-    cursor::MoveToNextLine,
-    style::{Color, Print, ResetColor, SetBackgroundColor, SetForegroundColor},
-    terminal::{self, Clear, EnterAlternateScreen, LeaveAlternateScreen},
+    event::{DisableMouseCapture, EnableMouseCapture},
+    terminal::{self, EnterAlternateScreen, LeaveAlternateScreen},
 };
 use tracing::info;
 use tracing_subscriber::EnvFilter;
 use unicode_width::UnicodeWidthStr;
+
+use crate::tui::{
+    Formatting, Measurement,
+    gutter::GutterComponent,
+    status::StatusComponent,
+    text::TextComponent,
+    tree::{ComponentNode, ComponentTree, Frame, LayoutMode},
+};
 
 fn main() -> Result<()> {
     let mut args = std::env::args();
     let _program_name = args.next();
     let file_name = args.next();
     // Set up file logging (logs to reovim.log)
-    let log_file = File::create("reovim.log")?;
+    let log_file = OpenOptions::new()
+        .write(true)
+        .truncate(true)
+        .create(true)
+        .open("reovim.log")?;
     tracing_subscriber::fmt()
         .with_env_filter(EnvFilter::from_default_env().add_directive(tracing::Level::DEBUG.into()))
         .with_writer(log_file)
@@ -38,7 +46,9 @@ fn main() -> Result<()> {
 
     // Enter alternate screen buffer and enable raw mode
     terminal::enable_raw_mode()?;
-    stdout().execute(EnterAlternateScreen)?;
+    stdout()
+        .execute(EnterAlternateScreen)?
+        .execute(EnableMouseCapture)?;
 
     let mut editor = match file_name {
         Some(file_name) => {
@@ -53,7 +63,9 @@ fn main() -> Result<()> {
     let result = editor.run();
 
     // Always restore terminal state, even if run() fails
-    stdout().execute(LeaveAlternateScreen)?;
+    stdout()
+        .execute(LeaveAlternateScreen)?
+        .execute(DisableMouseCapture)?;
     terminal::disable_raw_mode()?;
 
     info!("reovim shutting down");
@@ -127,26 +139,17 @@ impl<'a> Index<Range<usize>> for Line {
 pub enum Command {}
 
 struct Buffer {
-    /// If we don't have a file descriptor we just open a new buffer
-    file: Option<File>,
     file_path: Option<PathBuf>,
-    lines: Vec<Line>,
-    commands: Vec<Command>,
-    cursor: Cursor,
+    contents: String,
     dimensions: (u16, u16),
-    rows_number: usize,
     render_range: Range<usize>,
 }
 
 impl Default for Buffer {
     fn default() -> Self {
         Self {
-            file: Default::default(),
-            lines: Default::default(),
-            commands: Default::default(),
-            cursor: Default::default(),
+            contents: String::new(),
             dimensions: Default::default(),
-            rows_number: Default::default(),
             render_range: Default::default(),
             file_path: Default::default(),
         }
@@ -167,82 +170,69 @@ impl Buffer {
             lines.push(Line::new(line_number, line));
         }
         Ok(Buffer {
-            file: Some(file),
+            contents,
             file_path: Some(path.clone()),
-            rows_number: lines.len().to_string().len(),
-            lines,
             ..Default::default()
         })
     }
 
-    fn render_status_line(&self, stdout: &mut Stdout) -> Result<()> {
+    fn run(&mut self) -> Result<()> {
+        let mut stdout = stdout();
+        self.dimensions = crossterm::terminal::size()?;
+        self.render_range = 0..self.dimensions.1.saturating_sub(2) as usize;
+
         let file_name = self
             .file_path
             .as_ref()
             .and_then(|path| path.file_name())
-            .and_then(|os_str| os_str.to_str())
-            .unwrap_or("buffer");
-        stdout.execute(crossterm::cursor::MoveTo(0, self.dimensions.1 - 2))?;
-        stdout
-            .execute(SetBackgroundColor(Color::Reset))?
-            .execute(SetBackgroundColor(Color::Black))?
-            .execute(SetForegroundColor(Color::Yellow))?
-            .execute(Print(file_name))?
-            .execute(MoveToNextLine(1))?
-            .execute(SetBackgroundColor(Color::Reset))?;
-        Ok(())
-    }
+            .and_then(|os_string| os_string.to_str())
+            .unwrap_or("[no file]");
 
-    fn render_text(&self, stdout: &mut Stdout) -> Result<()> {
-        stdout.execute(crossterm::cursor::MoveTo(0, 0))?;
-        for line in &self.lines[self.render_range.start..self.render_range.end] {
-            info!("{} {}", line.line_number, line.contents);
-            let gutter_width = self.rows_number;
-            let gutter_str = format!(" {:>gutter_width$} ", line.line_number.to_string());
-            stdout
-                .execute(SetBackgroundColor(Color::Reset))?
-                .execute(SetBackgroundColor(Color::DarkGrey))?
-                .execute(Print(gutter_str))?
-                .execute(SetBackgroundColor(Color::Reset))?
-                .execute(Print(" "))?
-                .execute(Print(line.contents.clone()))?
-                .execute(MoveToNextLine(1))?;
-        }
-        Ok(())
-    }
+        let root_frame = Frame::new(LayoutMode::VerticalSplit);
+        let mut tree = ComponentTree::new(tui::tree::ComponentNode::Frame(root_frame));
+        let editor_frame = Frame::new(LayoutMode::HorizontalSplit);
+        let editor_formatting = Formatting {
+            preferred_width: Measurement::Percent(100),
+            preferred_height: Measurement::Fill, // Leave room for status line
+            ..Formatting::default()
+        };
+        let editor_frame_id = tree.add_child_with_formatting(
+            0,
+            tui::tree::ComponentNode::Frame(editor_frame),
+            editor_formatting,
+        )?;
+        let text = TextComponent::new(&self.contents, 0);
+        tree.add_child(editor_frame_id, ComponentNode::Text(text))?;
 
-    fn run(&mut self) -> Result<()> {
-        let mut stdout = stdout();
+        let status_line = StatusComponent::new(file_name);
+        tree.add_child(0, ComponentNode::Status(status_line))?;
+
         loop {
             self.dimensions = crossterm::terminal::size()?;
-            self.render_range = 0..self.dimensions.1.saturating_sub(2) as usize;
-            info!("{:?}", self.dimensions);
-            stdout
-                .execute(Clear(crossterm::terminal::ClearType::All))?
-                .execute(SetForegroundColor(Color::White))?;
+            tree.layout(self.dimensions.0, self.dimensions.1);
+            tree.render(&mut stdout)?;
+            tree.clear_dirty();
 
-            self.render_text(&mut stdout)?;
-            self.render_status_line(&mut stdout)?;
-
-            stdout.execute(ResetColor)?;
-
-            // nowe we handle them events, yehaw
-            if let crossterm::event::Event::Key(key) =
-                crossterm::event::read().expect("failed to read event")
-            {
-                if key
-                    .code
-                    .is_modifier(crossterm::event::ModifierKeyCode::LeftMeta)
-                {
-                    info!("yoooo");
+            let crossterm_event = crossterm::event::read().expect("failed to read event");
+            // nowe we handle them events
+            match crossterm_event {
+                crossterm::event::Event::FocusGained => {}
+                crossterm::event::Event::FocusLost => {}
+                crossterm::event::Event::Key(key_event) => {
+                    tree.update(event::ReovimEvent::Key(key_event))?;
+                    if key_event.code.is_esc() {
+                        break;
+                    }
                 }
-                break;
+                crossterm::event::Event::Mouse(mouse_event) => {
+                    tree.update(event::ReovimEvent::Mouse(mouse_event))?
+                }
+                crossterm::event::Event::Paste(_) => {}
+                crossterm::event::Event::Resize(x, y) => {
+                    tree.update(event::ReovimEvent::Resize(x, y))?
+                }
             }
         }
         Ok(())
     }
 }
-
-struct Window {}
-
-impl Window {}

@@ -1,13 +1,1664 @@
-2025-12-20T11:40:15.880279Z  INFO reovim: reovim starting
-2025-12-20T11:40:15.881008Z  INFO reovim: opening file test.txt
-2025-12-20T11:40:15.882175Z  INFO reovim: (78, 11)
-2025-12-20T11:40:15.882321Z  INFO reovim: 0 hello world!
-2025-12-20T11:40:15.882483Z  INFO reovim: 1 why dis test
-2025-12-20T11:40:15.882554Z  INFO reovim: 2 wat
-2025-12-20T11:40:15.882621Z  INFO reovim: 3 hello
-2025-12-20T11:40:15.882686Z  INFO reovim: 4 hello world!
-2025-12-20T11:40:15.882755Z  INFO reovim: 5 hello world!
-2025-12-20T11:40:15.882821Z  INFO reovim: 6 hello world!
-2025-12-20T11:40:15.882886Z  INFO reovim: 7 hello world!
-2025-12-20T11:40:15.882951Z  INFO reovim: 8 hello world!
-2025-12-20T11:40:23.491283Z  INFO reovim: reovim shutting down
+2025-12-27T12:21:15.255377Z  INFO reovim: reovim starting
+2025-12-27T12:21:15.255783Z  INFO reovim: opening file test.txt
+2025-12-27T12:21:15.256539Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:15.256567Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:15.256650Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=true
+2025-12-27T12:21:15.260226Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:15.260245Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:15.261948Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:16.405707Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:16.405932Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:16.405972Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:16.406000Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:16.406030Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:16.421431Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:16.421516Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:16.421528Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:16.421539Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:16.421550Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:16.437696Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:16.437744Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:16.437759Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:16.437771Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:16.437779Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:16.453598Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:16.453724Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:16.453757Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:16.453788Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:16.453814Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:16.469803Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:16.469927Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:16.469990Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:16.470022Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:16.470078Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:16.477496Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:16.477531Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:16.477549Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:16.477558Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:16.477568Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:16.493418Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:16.493450Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:16.493463Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:16.493473Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:16.493485Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:16.510248Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:16.510459Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:16.510578Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:16.510612Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:16.510635Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:16.543089Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:16.543317Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:16.543364Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:16.543396Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:16.543424Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:16.566949Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:16.567092Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:16.567121Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:16.567141Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:16.567161Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:16.590768Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:16.590909Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:16.590940Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:16.590966Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:16.590988Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:16.607346Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:16.607406Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:16.607418Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:16.607428Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:16.607436Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:16.614746Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:16.614782Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:16.614793Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:16.614801Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:16.614809Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:16.622882Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:16.622914Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:16.622929Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:16.622938Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:16.622945Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:16.631656Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:16.631691Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:16.631703Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:16.631711Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:16.631719Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:16.648906Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:16.648946Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:16.648958Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:16.648966Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:16.648974Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:16.654966Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:16.655036Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:16.655052Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:16.655063Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:16.655073Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:16.671385Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:16.671426Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:16.671439Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:16.671448Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:16.671458Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:16.949141Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:16.949357Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:16.949387Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:16.949410Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:16.949431Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:16.966095Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:16.966126Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:16.966182Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:16.966203Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:16.966219Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:16.969763Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:16.981480Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:16.981498Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:16.981537Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:16.981551Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:16.981562Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:16.990289Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:16.991271Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:16.991312Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:16.991325Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:16.991335Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:16.991344Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:16.998167Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:16.998184Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:16.998218Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:16.998232Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:16.998240Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.000258Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.014974Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.014990Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.015018Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.015029Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.015036Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.018498Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.018939Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.018951Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.018995Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.019004Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.019009Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.020599Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.020709Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.020730Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.020738Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.020744Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.020750Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.031505Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.031519Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.031547Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.031556Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.031562Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.035009Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.035139Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.035147Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.035169Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.035183Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.035189Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.036702Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.036817Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.036843Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.036850Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.036857Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.036864Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.048174Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.048188Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.048215Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.048223Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.048229Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.049708Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.049819Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.049841Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.049849Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.049854Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.049861Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.065048Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.065062Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.065089Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.065097Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.065134Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.066705Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.081656Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.081669Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.081725Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.081734Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.081740Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.087056Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.087688Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.087716Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.087724Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.087730Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.087736Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.114981Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.114997Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.115026Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.115035Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.115042Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.120376Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.120520Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.120548Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.120556Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.120562Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.120568Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.181574Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.181616Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.181625Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.181632Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.181640Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.199669Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.199685Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.199718Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.199727Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.199734Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.201273Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.282389Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.282549Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.282811Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.282976Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.283017Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.294927Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.295811Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.295865Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.295879Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.295889Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.295897Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.319055Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.319079Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.319126Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.319167Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.319178Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.327014Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.327954Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.327999Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.328011Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.328023Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.328034Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.369160Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.369186Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.369233Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.369247Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.369257Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.371806Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.372061Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.372113Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.372125Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.372135Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.372144Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.419281Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.419340Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.419437Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.419500Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.419529Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.428808Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.428947Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.428978Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.428987Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.428995Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.429002Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.469489Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.469552Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.469659Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.469692Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.469716Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.473766Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.485898Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.485940Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.485950Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.485957Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.485965Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.536111Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.536190Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.536338Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.536435Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.536515Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.541980Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.552459Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.552623Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.552633Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.552641Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.552647Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.619973Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.620203Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.620402Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.620455Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.620498Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.626920Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.699209Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.699536Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.699588Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.699632Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.699674Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.720029Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.720115Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.720276Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.720309Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.720332Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.727025Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.727761Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.727775Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.727841Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.727858Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.727867Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.729436Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.731726Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.731744Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.731782Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.731792Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.731799Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.735546Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.735678Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.735688Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.735717Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.735728Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.735735Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.737444Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.737572Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.737600Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.737632Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.737642Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.737648Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.748556Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.748576Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.748612Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.748623Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.748631Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.750930Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.751068Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.751078Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.751104Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.751113Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.751122Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.752779Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.752901Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.752910Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.752930Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.752940Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.752947Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.754734Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.754859Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.754867Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.754894Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.754903Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.754910Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.756608Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.756731Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.756754Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.756762Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.756768Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.756775Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.764797Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.764810Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.764840Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.764850Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.764857Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.767315Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.767458Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.767467Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.767492Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.767502Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.767510Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.769342Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.769478Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.769487Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.769531Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.769541Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.769548Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.771376Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.771508Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.771516Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.771537Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.771547Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.771554Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.773419Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.773561Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.773589Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.773598Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.773606Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.773613Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.781571Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.781592Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.781620Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.781630Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.781637Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.783627Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.783782Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.783790Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.783813Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.783822Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.783831Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.785864Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.786007Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.786014Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.786037Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.786046Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.786053Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.788046Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.788196Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.788204Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.788232Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.788243Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.788251Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.790265Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.790449Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.790461Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.790491Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.790502Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.790510Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.792549Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.792698Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.792705Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.792728Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.792737Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.792744Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.794574Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.794717Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.794746Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.794755Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.794763Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.794770Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.794901Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.794923Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.794932Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.794939Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.794946Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.795076Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.795096Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.795105Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.795113Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.795120Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.798314Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.798326Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.798351Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.798360Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.798367Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.800178Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.800341Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.800349Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.800372Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.800380Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.800386Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.802090Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.802909Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.802918Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.802945Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.802953Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.802959Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.804805Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.804929Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.804936Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.804960Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.804968Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.804974Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.807315Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.807697Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.807704Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.807727Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.807735Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.807740Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.809313Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.809427Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.809449Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.809456Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.809462Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.809467Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.809585Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.809609Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.809616Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.809622Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.809628Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.809740Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.809759Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.809765Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.809770Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.809776Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.809912Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.809920Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.809938Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.809944Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.809949Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.811535Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.811649Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.811655Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.811674Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.811681Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.811686Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.813253Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.813432Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.813438Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.813457Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.813463Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.813468Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.815049Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.815188Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.815196Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.815215Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.815221Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.815226Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.816836Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.816956Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.816963Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.816980Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.816988Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.816993Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.818525Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.818629Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.818636Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.818652Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.818658Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.818664Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.820240Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.820347Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.820353Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.820369Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.820375Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.820380Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.821845Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.821968Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.821977Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.821996Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.822003Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.822008Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.823457Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.823564Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.823584Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.823591Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.823596Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.823602Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.823725Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.823743Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.823750Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.823754Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.823760Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.823865Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.823882Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.823889Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.823894Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.823899Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.824003Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.824019Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.824025Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.824029Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.824035Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.824157Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.824207Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.824223Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.824229Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.824234Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.825689Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.825796Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.825803Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.825823Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.825830Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.825836Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.827296Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.827402Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.827407Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.827424Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.827430Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.827435Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.828890Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.828997Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.829005Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.829024Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.829031Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.829037Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.830624Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.830738Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.839880Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.839917Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.839924Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.839929Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.841747Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.842343Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.842349Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.842369Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.842375Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.842380Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.843910Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.844028Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.844034Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.844055Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.844062Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.844067Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.845535Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.845640Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.845645Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.845661Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.845668Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.845673Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.847267Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.847382Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.847388Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.847409Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.847416Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.847422Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.848993Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.849096Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.849114Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.849120Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.849124Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.849129Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.849233Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.849256Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.849263Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.849268Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.849273Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.849381Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.849396Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.849403Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.849407Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.849412Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.849514Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.849530Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.849536Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.849541Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.849546Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.849686Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.849692Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.849706Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.849712Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.849718Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.851172Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.851278Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.851285Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.851304Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.851310Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.851316Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.853008Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.853116Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.853121Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.853138Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.853144Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.853149Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.854620Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.854727Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.854733Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.854753Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.854759Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.854765Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.856236Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.856343Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.856348Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.856366Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.856372Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.856378Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.857956Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.858061Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.858066Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.858083Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.858089Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.858095Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.859626Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.859739Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.859745Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.859761Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.859767Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.859773Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.861243Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.861364Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.861372Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.861389Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.861396Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.861401Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.862882Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.862988Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.863012Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.863019Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.863025Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.863030Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.863140Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.863157Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.863163Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.863168Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.863174Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.863291Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.863309Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.863315Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.863321Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.863342Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.863441Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.863470Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.863478Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.863483Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.863489Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.863606Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.863612Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.863629Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.863636Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.863642Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.865147Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.865249Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.865255Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.865272Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.865278Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.865284Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.866925Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.867030Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.867036Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.867054Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.867060Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.867067Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.868603Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.868708Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.868714Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.868741Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.868748Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.868754Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.870434Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.870556Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.870563Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.870583Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.870590Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.870596Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.872077Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.872184Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.872190Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.872207Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.872213Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.872219Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.873716Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.873825Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.873832Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.873848Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.873853Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.873874Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.875411Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.875515Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.875520Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.875539Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.875545Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.875551Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.877078Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.877183Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.877207Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.877213Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.877219Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.877226Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.877340Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.877361Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.877368Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.877374Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.877379Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.877555Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.877573Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.877579Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.877585Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.877591Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.877699Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.877715Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.877721Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.877727Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.877733Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.877872Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.877878Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.877895Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.877901Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.877906Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.879403Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.879507Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.879514Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.879530Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.879537Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.879542Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.881248Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.881353Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.881359Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.881378Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.881385Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.881390Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.882934Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.883090Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.883096Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.883113Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.883119Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.883125Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.884592Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.884731Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.884737Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.884753Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.884760Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.884766Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.886246Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.886361Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.886368Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.886386Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.886393Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.886399Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.888103Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.888209Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.888214Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.888232Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.888238Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.888244Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.889911Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.890016Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.890035Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.890043Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.890048Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.890054Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.890157Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.890175Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.890181Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.890186Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.890191Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.890293Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.890309Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.890315Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.890320Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.890326Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.890432Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.890450Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.890457Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.890463Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.890468Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.890581Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.890587Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.890602Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.890608Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.890613Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.892162Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.892272Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.892277Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.892295Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.892302Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.892307Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.893794Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.893898Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.893903Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.893918Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.893924Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.893928Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.895481Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.895585Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.895590Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.895606Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.895613Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.895618Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.897121Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.897255Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.897261Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.897280Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.897307Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.897314Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.898899Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.899005Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.899010Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.899027Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.899034Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.899040Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.900532Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.900638Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.900644Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.900661Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.900667Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.900674Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.902293Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.902399Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.902418Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.902424Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.902430Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.902436Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.902545Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.902562Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.902568Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.902573Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.902579Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.902680Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.902697Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.902703Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.902708Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.902714Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.902817Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.902895Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.902902Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.902909Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.902915Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.903489Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.903502Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.903522Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.903528Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.903546Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.905048Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.905163Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.905169Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.905186Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.905191Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.905197Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.906695Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.906801Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.906806Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.906823Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.906830Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.906844Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.908409Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.908514Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.908519Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.908538Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.908544Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.908549Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.910025Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.910132Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.910139Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.910155Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.910162Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.910170Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.911749Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.911861Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.911868Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.911927Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.911981Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.911989Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.913535Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.913640Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.913659Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.913665Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.913670Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.913675Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.913779Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.913795Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.913801Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.913806Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.913811Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.913921Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.913937Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.913943Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.913948Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.913954Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.914057Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.914083Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.914090Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.914095Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.914100Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.920091Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.920124Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.920196Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.920206Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.920212Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.921699Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.921816Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.921822Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.921841Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.921847Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.921853Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.923468Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.923571Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.923576Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.923594Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.923600Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.923605Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.925112Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.925217Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.925222Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.925238Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.925245Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.925250Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.926734Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.926845Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.926853Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.926872Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.926879Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.926885Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.928413Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.928519Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.928525Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.928543Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.928549Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.928554Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.930008Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.930114Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.930133Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.930140Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.930146Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.930152Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.930256Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.930273Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.930279Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.930284Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.930289Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.930449Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.930471Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.930478Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.930484Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.930491Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.930604Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.930620Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.930626Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.930631Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.930636Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.936957Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.936967Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.936990Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.936997Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.937002Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.938533Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.938729Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.938736Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.938755Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.938761Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.938766Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.940228Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.940342Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.940348Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.940366Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.940372Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.940377Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.941839Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.941942Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.941947Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.941964Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.941970Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.941975Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.943756Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.943862Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.943867Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.943884Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.943890Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.943895Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.945375Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.945487Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.945493Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.945510Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.945516Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.945522Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.947065Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.947173Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.947222Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.947229Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.947236Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.947242Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.947345Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.947362Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.947368Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.947374Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.947381Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.947526Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.947546Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.947552Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.947557Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.947562Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.947667Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.947683Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.947689Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.947695Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.947700Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.953305Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.953314Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.953335Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.953342Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.953348Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.954847Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.954977Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.954982Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.954999Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.955005Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.955011Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.956600Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.956704Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.956710Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.956728Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.956734Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.956740Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.958201Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.958305Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.958310Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.958326Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.958333Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.958339Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.959872Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.959982Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.959989Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.960006Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.960013Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.960019Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.961495Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.961607Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.961616Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.961697Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.961704Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.961710Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.963285Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.963389Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.963407Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.963414Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.963423Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.963429Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.963575Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.963594Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.963600Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.963606Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.963612Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.963717Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.963733Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.963739Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.963744Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.963749Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.963860Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.963878Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.963885Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.963890Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.963903Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.970251Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.970260Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.970283Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.970290Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.970295Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.971861Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.971972Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.971979Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.971996Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.972003Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.972008Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.973524Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.973641Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.973647Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.973663Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.973670Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.973677Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.975106Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.975241Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.975247Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.975267Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.975273Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.975279Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.976690Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.976804Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.976810Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.976827Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.976833Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.976838Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.978274Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.978379Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.978395Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.978402Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.978407Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.978413Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.978516Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.978533Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.978539Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.978544Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.978550Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.978692Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.978713Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.978720Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.978725Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.978731Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.986837Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.986847Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.986895Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.986901Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.986906Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.988357Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.988480Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.988487Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.988508Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.988515Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.988520Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.989924Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.990031Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.990036Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.990055Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.990062Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.990067Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.991461Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.991606Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.991612Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.991628Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.991635Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.991641Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.993034Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.993176Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:17.993182Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.993198Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.993205Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.993211Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:17.994582Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.994691Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.994710Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.994718Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.994723Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.994728Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.994834Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.994854Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.994860Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.994865Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.994871Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:17.994975Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:17.994991Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:17.994997Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.995003Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:17.995009Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.002868Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.002912Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.002953Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.002961Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.002967Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.004347Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.004462Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.004468Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.004486Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.004492Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.004498Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.005862Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.005967Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.005972Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.005990Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.005997Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.006002Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.007305Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.007411Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.007416Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.007433Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.007439Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.007445Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.008932Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.009044Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.009050Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.009067Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.009074Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.009080Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.010438Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.010576Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.010597Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.010604Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.010610Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.010616Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.010721Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.010737Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.010743Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.010748Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.010754Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.010857Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.010882Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.010888Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.010893Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.010898Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.019307Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.019362Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.019391Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.019398Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.019404Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.020909Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.021026Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.021032Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.021051Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.021058Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.021064Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.022422Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.022531Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.022537Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.022556Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.022563Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.022575Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.023928Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.024040Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.024046Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.024063Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.024070Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.024076Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.025433Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.025540Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.025557Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.025563Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.025568Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.025576Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.025679Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.025695Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.025700Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.025707Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.025712Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.036721Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.036732Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.036760Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.036767Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.036773Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.038304Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.038481Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.038506Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.038527Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.038534Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.038540Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.039887Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.039994Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.040000Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.040018Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.040025Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.040030Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.041387Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.041515Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.041521Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.041538Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.041544Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.041550Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.042935Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.043044Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.043061Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.043067Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.043073Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.043079Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.043182Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.043198Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.043204Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.043210Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.043216Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.053503Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.053514Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.053540Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.053546Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.053552Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.055149Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.055264Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.055270Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.055290Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.055297Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.055302Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.056634Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.056740Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.056745Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.056762Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.056768Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.056773Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.058104Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.058208Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.058214Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.058231Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.058244Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.058250Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.059614Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.059730Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.059748Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.059755Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.059760Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.059766Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.059870Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.059892Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.059903Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.059910Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.059915Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.070213Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.070273Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.070298Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.070305Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.070311Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.075484Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.076168Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.076176Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.076196Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.076203Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.076208Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.081730Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.081885Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.081892Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.081911Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.081917Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.081923Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.087094Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.087202Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.087208Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.087230Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.087237Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.087243Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.088710Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.088817Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.088839Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.088846Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.088852Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.088859Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.089002Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.089022Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.089028Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.089034Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.089040Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.089144Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.089150Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.089166Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.089172Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.089182Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.090507Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.090611Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.090616Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.090632Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.090638Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.090643Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.091970Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.092073Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.092079Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.092094Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.092101Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.092106Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.093457Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.093566Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.093594Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.093602Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.093608Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.093613Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.093738Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.093756Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.093762Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.093768Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.093773Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.103462Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.103474Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.103500Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.103508Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.103513Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.105684Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.105796Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.105803Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.105821Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.105829Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.105835Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.107137Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.107249Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.107257Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.107275Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.107282Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.107288Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.108585Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.108691Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.108710Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.108718Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.108724Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.108730Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.120070Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.120083Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.120110Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.120117Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.120124Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.122283Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.122398Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.122404Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.122424Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.122431Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.122437Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.123738Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.123845Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.123851Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.123870Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.123878Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.123883Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.125177Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.125284Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.125303Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.125310Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.125318Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.125324Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.136794Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.136807Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.136831Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.136839Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.136844Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.138787Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.139100Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.139107Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.139124Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.139132Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.139138Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.140473Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.140581Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.140587Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.140607Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.140614Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.140619Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.141935Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.142042Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.142060Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.142067Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.142073Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.142078Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.153467Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.153477Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.153501Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.153509Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.153515Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.158498Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.159136Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.159144Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.159163Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.159170Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.159176Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.164565Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.165205Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.165230Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.165238Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.165246Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.165253Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.170385Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.170395Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.170426Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.170435Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.170461Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.173240Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.173650Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.173657Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.173677Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.173684Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.173690Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.175000Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.175106Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.175125Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.175132Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.175138Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.175144Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.186763Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.186781Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.186812Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.186818Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.186823Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.189831Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.189947Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.189953Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.189973Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.189979Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.189984Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.191288Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.191395Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.191423Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.191429Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.191434Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.191439Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.203428Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.203442Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.203467Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.203473Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.203478Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.206488Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.206601Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.206606Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.206627Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.206633Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.206638Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.207928Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.208029Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.208046Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.208052Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.208056Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.208061Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.220201Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.220215Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.220242Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.220249Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.220255Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.225238Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.225890Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.225900Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.225923Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.225930Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.225935Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.231414Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.232049Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.232072Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.232078Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.232083Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.232088Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.235835Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.235843Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.235864Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.235870Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.235875Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.240867Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.241487Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.241493Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.241519Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.241525Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.241530Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.242831Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.253440Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.253452Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.253478Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.253484Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.253489Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.258491Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.259114Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.259139Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.259146Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.259151Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.259156Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.270344Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.270355Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.270380Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.270387Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.270393Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.271689Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.286466Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.286481Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.286510Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.286516Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.286522Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.291461Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.292103Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.292134Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.292140Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.292145Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.292150Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.303476Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.303490Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.303516Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.303523Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.303528Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.304826Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.320127Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.320142Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.320173Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.320179Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.320184Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.325145Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.325757Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.325784Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.325791Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.325796Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.325801Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.336734Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.336745Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.336770Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.336776Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.336781Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.338084Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.353475Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.353491Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.353519Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.353526Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.353531Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.358524Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.359149Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.359172Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.359180Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.359185Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.359191Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.386872Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.386896Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.386937Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.386943Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.386949Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.391951Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.392573Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.392598Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.392605Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.392610Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.392615Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.420237Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.420261Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.420294Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.420300Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.420305Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.421639Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.437087Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.437129Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.437135Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.437140Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.437146Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.453660Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.453673Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.453702Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.453708Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.453712Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.455003Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.486971Z DEBUG reovim::tui::tree: mark_dirty: id=2
+2025-12-27T12:21:18.486994Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.487033Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.487040Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.487045Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=true
+2025-12-27T12:21:18.492126Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.492763Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.492789Z DEBUG reovim::tui::tree: render_node id=0: rect=(0,0) 71x15 dirty=false
+2025-12-27T12:21:18.492795Z DEBUG reovim::tui::tree: render_node id=1: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.492800Z DEBUG reovim::tui::tree: render_node id=2: rect=(0,0) 71x14 dirty=false
+2025-12-27T12:21:18.492805Z DEBUG reovim::tui::tree: render_node id=3: rect=(0,14) 71x1 dirty=true
+2025-12-27T12:21:18.513981Z DEBUG reovim::tui::tree: mark_dirty: id=3
+2025-12-27T12:21:18.514039Z  INFO reovim: reovim shutting down
