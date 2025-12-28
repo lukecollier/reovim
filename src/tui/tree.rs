@@ -8,6 +8,7 @@ use crate::tui::{Component, Formatting, Measurement, Overflow, Rect};
 use anyhow::Result;
 use crossterm::ExecutableCommand;
 use crossterm::cursor::{Hide, MoveTo, Show};
+use crossterm::event::{MouseButton, MouseEventKind};
 use crossterm::style::{Print, ResetColor, SetBackgroundColor, SetForegroundColor};
 use std::io::Stdout;
 
@@ -821,46 +822,60 @@ impl<'a> ComponentTree<'a> {
 
             // Auto-scroll to keep cursor visible if component has Overflow::Scroll and cursor moved
             if formatting.overflow_y == Overflow::Scroll && cursor_moved {
-                let mut new_scroll_y = scroll_y;
-
-                if cursor_tree_row < scroll_y as u16 {
-                    // Cursor is above visible range, scroll up to show it
-                    new_scroll_y = cursor_tree_row as usize;
-                } else if cursor_tree_row >= (scroll_y + rect.height as usize) as u16 {
-                    // Cursor is below visible range, scroll down to show it at bottom
+                if let Some(component) = self.components.get(id) {
+                    let (_min_col, _max_col, min_row, max_row) =
+                        component.cursor_bounds(rect.width, rect.height, &formatting);
+                    let mut new_scroll_y = scroll_y;
                     let visible_height = rect.height as usize;
-                    new_scroll_y = (cursor_tree_row as usize).saturating_sub(visible_height - 1);
-                }
 
-                // Update scroll and mark as dirty for re-render
-                if new_scroll_y != scroll_y {
-                    final_scroll_y = new_scroll_y;
-                    if let Some(scroll) = self.scroll_y.get_mut(id) {
-                        *scroll = new_scroll_y;
+                    // Only scroll if cursor is within valid bounds
+                    if cursor_tree_row >= min_row && cursor_tree_row <= max_row {
+                        if cursor_tree_row < scroll_y as u16 {
+                            // Cursor is above visible range, scroll up to show it
+                            new_scroll_y = cursor_tree_row as usize;
+                        } else if cursor_tree_row >= (scroll_y + visible_height) as u16 {
+                            // Cursor is below visible range, scroll down to show it at bottom
+                            new_scroll_y =
+                                (cursor_tree_row as usize).saturating_sub(visible_height - 1);
+                        }
                     }
-                    self.mark_dirty(id);
+
+                    // Update scroll and mark as dirty for re-render
+                    if new_scroll_y != scroll_y {
+                        final_scroll_y = new_scroll_y;
+                        if let Some(scroll) = self.scroll_y.get_mut(id) {
+                            *scroll = new_scroll_y;
+                        }
+                        self.mark_dirty(id);
+                    }
                 }
             }
 
             // Clamp cursor to visible range (for mouse scrolling)
             if formatting.overflow_y == Overflow::Scroll {
-                let visible_height = rect.height as usize;
-                let new_cursor_row;
+                if let Some(component) = self.components.get(id) {
+                    let (_min_col, _max_col, min_row, max_row) =
+                        component.cursor_bounds(rect.width, rect.height, &formatting);
+                    let visible_height = rect.height as usize;
 
-                // If cursor is above visible range, move it to the top
-                if cursor_tree_row < final_scroll_y as u16 {
-                    new_cursor_row = final_scroll_y as u16;
-                    if let Some(cursor) = self.cursor_row.get_mut(id) {
-                        *cursor = new_cursor_row;
+                    // Only clamp if cursor is within valid bounds
+                    if cursor_tree_row >= min_row && cursor_tree_row <= max_row {
+                        // If cursor is above visible range, move it to the top
+                        if cursor_tree_row < final_scroll_y as u16 {
+                            if let Some(cursor) = self.cursor_row.get_mut(id) {
+                                *cursor = final_scroll_y as u16;
+                            }
+                            self.mark_dirty(id);
+                        } else if cursor_tree_row >= (final_scroll_y + visible_height) as u16 {
+                            // If cursor is below visible range, move it to the bottom
+                            let new_cursor_row =
+                                (final_scroll_y + visible_height.saturating_sub(1)) as u16;
+                            if let Some(cursor) = self.cursor_row.get_mut(id) {
+                                *cursor = new_cursor_row;
+                            }
+                            self.mark_dirty(id);
+                        }
                     }
-                    self.mark_dirty(id);
-                } else if cursor_tree_row >= (final_scroll_y + visible_height) as u16 {
-                    // If cursor is below visible range, move it to the bottom
-                    new_cursor_row = (final_scroll_y + visible_height.saturating_sub(1)) as u16;
-                    if let Some(cursor) = self.cursor_row.get_mut(id) {
-                        *cursor = new_cursor_row;
-                    }
-                    self.mark_dirty(id);
                 }
             }
         }
@@ -1086,25 +1101,27 @@ impl<'a> ComponentTree<'a> {
         // Handle scroll events at tree level
         if let ReovimEvent::Mouse(mouse_event) = &event {
             match mouse_event.kind {
-                crossterm::event::MouseEventKind::Down(crossterm::event::MouseButton::Left) => {
+                MouseEventKind::Down(MouseButton::Left) => {
                     let (col, row) =
                         self.global_to_local(self.focus, mouse_event.column, mouse_event.row);
                     let formatting = self.formatting.get(self.focus).copied().unwrap_or_default();
                     let rect = self.rect(self.focus).unwrap_or_default();
-                    if let Some(component) = self.components.get(self.focus) {
-                        let (min_col, max_col, min_row, max_row) =
-                            component.cursor_bounds(rect.width, rect.height, &formatting);
-                        if let Some(cursor_col) = self.cursor_col.get_mut(self.focus) {
-                            *cursor_col = col.clamp(min_col, max_col);
+                    if rect.contains(mouse_event.column, mouse_event.row) {
+                        if let Some(component) = self.components.get(self.focus) {
+                            let (min_col, max_col, min_row, max_row) =
+                                component.cursor_bounds(rect.width, rect.height, &formatting);
+                            if let Some(cursor_col) = self.cursor_col.get_mut(self.focus) {
+                                *cursor_col = col.clamp(min_col, max_col);
+                            }
+                            if let Some(cursor_row) = self.cursor_row.get_mut(self.focus) {
+                                *cursor_row = row.clamp(min_row, max_row);
+                            }
+                            self.mark_dirty(self.focus);
                         }
-                        if let Some(cursor_row) = self.cursor_row.get_mut(self.focus) {
-                            *cursor_row = row.clamp(min_row, max_row);
-                        }
-                        self.mark_dirty(self.focus);
                     }
                     return Ok(());
                 }
-                crossterm::event::MouseEventKind::ScrollUp => {
+                MouseEventKind::ScrollUp => {
                     let current_scroll = self.scroll_y.get(self.focus).copied().unwrap_or(0);
                     let new_scroll = current_scroll.saturating_sub(1);
 
@@ -1120,7 +1137,7 @@ impl<'a> ComponentTree<'a> {
                     self.mark_dirty(self.focus);
                     return Ok(());
                 }
-                crossterm::event::MouseEventKind::ScrollDown => {
+                MouseEventKind::ScrollDown => {
                     let current_scroll = self.scroll_y.get(self.focus).copied().unwrap_or(0);
                     let new_scroll = current_scroll + 1;
 

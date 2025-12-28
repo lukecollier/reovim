@@ -342,9 +342,7 @@ impl<'a> Component for TextComponent<'a> {
                     kind: _,
                     state: _,
                 }) => {
-                    let (col, row) = commands.get_cursor();
-                    let new_row = (row + 1).min(self.lines.len() as u16 - 1);
-                    commands.set_cursor(col, new_row);
+                    commands.move_cursor(0, 1);
                     return Ok(true); // Component changed, needs re-render
                 }
                 ReovimEvent::Key(KeyEvent {

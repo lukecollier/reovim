@@ -39,10 +39,14 @@ impl<'a> Component for StatusComponent<'a> {
 
     fn update(
         &mut self,
-        _event: ReovimEvent,
+        event: ReovimEvent,
         _commands: &mut super::tree::ComponentCommands,
     ) -> Result<bool> {
-        Ok(false)
+        if matches!(event, ReovimEvent::Resize(_, _)) {
+            Ok(true)
+        } else {
+            Ok(false)
+        }
     }
 
     fn default_formatting(&self) -> Formatting {

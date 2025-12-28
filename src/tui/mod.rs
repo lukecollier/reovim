@@ -39,6 +39,14 @@ impl Rect {
             height: 0,
         }
     }
+
+    /// Check if the given column and row are within this rect's bounds
+    pub fn contains(&self, col: u16, row: u16) -> bool {
+        col >= self.x
+            && col < self.x + self.width
+            && row >= self.y
+            && row < self.y + self.height
+    }
 }
 
 #[derive(Debug, Clone, Copy)]
