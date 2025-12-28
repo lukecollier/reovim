@@ -7,10 +7,9 @@ use crate::tui::text::TextComponent;
 use crate::tui::{Component, Formatting, Measurement, Overflow, Rect};
 use anyhow::Result;
 use crossterm::ExecutableCommand;
-use crossterm::cursor::{MoveTo, Hide, Show};
+use crossterm::cursor::{Hide, MoveTo, Show};
 use crossterm::style::{Print, ResetColor, SetBackgroundColor, SetForegroundColor};
 use std::io::Stdout;
-use tracing::debug;
 
 pub type ComponentId = usize;
 
@@ -628,16 +627,6 @@ impl<'a> ComponentTree<'a> {
         let rect = self.rects.get(id).copied().unwrap_or_default();
         let formatting = self.formatting.get(id).copied().unwrap_or_default();
 
-        debug!(
-            "render_node id={}: rect=({},{}) {}x{} dirty={}",
-            id,
-            rect.x,
-            rect.y,
-            rect.width,
-            rect.height,
-            self.is_dirty(id)
-        );
-
         // Get cursor position from tree (absolute values)
         let cursor_tree_col = self.cursor_col.get(id).copied().unwrap_or(0);
         let cursor_tree_row = self.cursor_row.get(id).copied().unwrap_or(0);
@@ -812,23 +801,24 @@ impl<'a> ComponentTree<'a> {
             }
         }
 
-        // Reset colors before padding the rest of the current row if incomplete
-        stdout.execute(ResetColor)?;
-        // Pad the rest of the current row if incomplete
-        while x < buffer.width() {
-            stdout.execute(MoveTo(start_x + x, start_y + y))?;
-            stdout.execute(Print(' '))?;
-            x += 1;
-        }
-
-        // Clear any remaining rows beyond what was rendered
-        y += 1;
-        while y < buffer.height() {
-            for x_pos in 0..buffer.width() {
-                stdout.execute(MoveTo(start_x + x_pos, start_y + y))?;
+        // Pad the rest of the current row if incomplete (only if within bounds)
+        if y < buffer.height() {
+            stdout.execute(ResetColor)?;
+            while x < buffer.width() {
+                stdout.execute(MoveTo(start_x + x, start_y + y))?;
                 stdout.execute(Print(' '))?;
+                x += 1;
             }
+
+            // Clear any remaining rows beyond what was rendered
             y += 1;
+            while y < buffer.height() {
+                for x_pos in 0..buffer.width() {
+                    stdout.execute(MoveTo(start_x + x_pos, start_y + y))?;
+                    stdout.execute(Print(' '))?;
+                }
+                y += 1;
+            }
         }
 
         Ok(())
@@ -889,22 +879,24 @@ impl<'a> ComponentTree<'a> {
             }
         }
 
-        // Pad the rest of the current row if incomplete
-        while x < buffer.width() {
-            stdout.execute(MoveTo(start_x + x, start_y + y))?;
-            stdout.execute(Print(' '))?;
-            x += 1;
-        }
-        stdout.execute(ResetColor)?;
-
-        // Clear any remaining rows beyond what was rendered
-        y += 1;
-        while y < buffer.height() {
-            for x_pos in 0..buffer.width() {
-                stdout.execute(MoveTo(start_x + x_pos, start_y + y))?;
+        // Pad the rest of the current row if incomplete (only if within bounds)
+        if y < buffer.height() {
+            while x < buffer.width() {
+                stdout.execute(MoveTo(start_x + x, start_y + y))?;
                 stdout.execute(Print(' '))?;
+                x += 1;
             }
+            stdout.execute(ResetColor)?;
+
+            // Clear any remaining rows beyond what was rendered
             y += 1;
+            while y < buffer.height() {
+                for x_pos in 0..buffer.width() {
+                    stdout.execute(MoveTo(start_x + x_pos, start_y + y))?;
+                    stdout.execute(Print(' '))?;
+                }
+                y += 1;
+            }
         }
 
         Ok(())
@@ -958,7 +950,6 @@ impl<'a> ComponentTree<'a> {
 
     fn mark_dirty(&mut self, id: ComponentId) {
         if !self.dirty.contains(&id) {
-            debug!("mark_dirty: id={}", id);
             self.dirty.push(id);
         }
     }

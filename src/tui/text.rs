@@ -181,7 +181,6 @@ impl<'a> Line<'a> {
 pub struct TextComponent<'a> {
     content: &'a str,
     lines: Vec<Line<'a>>,
-    line_size: u16,
     show_gutter: bool,
     last_cursor_row: Cell<u16>,
 }
@@ -196,7 +195,6 @@ impl<'a> TextComponent<'a> {
         // we need to figure out the lines here
         TextComponent {
             content,
-            line_size: lines.len() as u16,
             lines,
             show_gutter: true,
             last_cursor_row: Cell::new(0),
