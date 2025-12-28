@@ -321,7 +321,7 @@ impl<'a> ComponentTree<'a> {
     }
 
     /// Get a component by ID (immutable)
-    pub fn get(&self, id: ComponentId) -> Option<&ComponentNode> {
+    pub fn get(&self, id: ComponentId) -> Option<&ComponentNode<'_>> {
         self.components.get(id)
     }
 

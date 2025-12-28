@@ -1,13 +1,7 @@
-use crate::{
-    event::ReovimEvent,
-    tui::{Component, Formatting, Measurement, Overflow, terminal_buffer::TerminalBuffer},
-};
+use crate::tui::{Component, Formatting, Measurement, Overflow, terminal_buffer::TerminalBuffer};
 
 use anyhow::Result;
-use crossterm::{
-    event::{KeyCode, KeyEvent, KeyEventKind, KeyModifiers},
-    style::Color,
-};
+use crossterm::style::Color;
 
 pub struct GutterComponent {
     width: usize,

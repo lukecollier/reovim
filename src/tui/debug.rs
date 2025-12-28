@@ -1,7 +1,4 @@
-use crate::{
-    event::ReovimEvent,
-    tui::{Component, Formatting, Measurement, Overflow, terminal_buffer::TerminalBuffer},
-};
+use crate::tui::{Component, Formatting, Measurement, Overflow, terminal_buffer::TerminalBuffer};
 
 use anyhow::Result;
 use crossterm::style::Color;

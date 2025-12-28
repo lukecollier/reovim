@@ -1,4 +1,4 @@
-use crossterm::{style::Color, terminal::Clear};
+use crossterm::style::Color;
 
 #[derive(Clone, Debug)]
 pub enum TerminalCommand {
