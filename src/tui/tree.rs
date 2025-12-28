@@ -64,6 +64,53 @@ impl<'a> ComponentCommands<'a> {
         self.tree.scroll_y.get(self.self_id).copied().unwrap_or(0)
     }
 
+    /// Convert global screen coordinates to local component coordinates
+    /// This accounts for the component's rect position and scroll offset
+    /// Result is the cursor position within the component's content
+    pub fn global_to_local(&self, global_col: u16, global_row: u16) -> (u16, u16) {
+        let rect = self
+            .tree
+            .rects
+            .get(self.self_id)
+            .copied()
+            .unwrap_or_default();
+        let scroll_x = self.tree.scroll_x.get(self.self_id).copied().unwrap_or(0);
+        let scroll_y = self.tree.scroll_y.get(self.self_id).copied().unwrap_or(0);
+
+        // Subtract rect offset to get local rect coordinates
+        let local_col = global_col.saturating_sub(rect.x);
+        let local_row = global_row.saturating_sub(rect.y);
+
+        // Add scroll offset to get position in the component's content
+        let cursor_col = (local_col as usize + scroll_x) as u16;
+        let cursor_row = (local_row as usize + scroll_y) as u16;
+
+        (cursor_col, cursor_row)
+    }
+
+    /// Convert local component coordinates to global screen coordinates
+    /// This accounts for the component's rect position and scroll offset
+    pub fn local_to_global(&self, local_col: u16, local_row: u16) -> (u16, u16) {
+        let rect = self
+            .tree
+            .rects
+            .get(self.self_id)
+            .copied()
+            .unwrap_or_default();
+        let scroll_x = self.tree.scroll_x.get(self.self_id).copied().unwrap_or(0);
+        let scroll_y = self.tree.scroll_y.get(self.self_id).copied().unwrap_or(0);
+
+        // Subtract scroll offset to get position within visible area
+        let visible_col = (local_col as usize).saturating_sub(scroll_x) as u16;
+        let visible_row = (local_row as usize).saturating_sub(scroll_y) as u16;
+
+        // Add rect offset to get global screen coordinates
+        let global_col = visible_col.saturating_add(rect.x);
+        let global_row = visible_row.saturating_add(rect.y);
+
+        (global_col, global_row)
+    }
+
     /// Set cursor position (col, row) for the component
     pub fn set_cursor(&mut self, col: u16, row: u16) {
         // Get rect dimensions, formatting, and cursor bounds from the component
@@ -213,6 +260,7 @@ impl<'a> ComponentNode<'a> {
         }
     }
 
+    /// (min_col, max_col, min_row, max_row)
     pub fn cursor_bounds(
         &self,
         width: u16,
@@ -387,7 +435,7 @@ impl<'a> ComponentTree<'a> {
     }
 
     /// Get a component by ID (immutable)
-    pub fn get(&self, id: ComponentId) -> Option<&ComponentNode<'_>> {
+    pub fn get(&self, id: ComponentId) -> Option<&ComponentNode<'a>> {
         self.components.get(id)
     }
 
@@ -407,6 +455,48 @@ impl<'a> ComponentTree<'a> {
     /// Get parent of a component
     pub fn parent(&self, id: ComponentId) -> Option<Option<ComponentId>> {
         self.parent.get(id).copied()
+    }
+
+    /// Get the bounding rectangle of a component
+    pub fn rect(&self, id: ComponentId) -> Option<Rect> {
+        self.rects.get(id).copied()
+    }
+
+    /// Convert global screen coordinates to local component coordinates
+    /// This accounts for the component's rect position and scroll offset
+    /// Result is the cursor position within the component's content
+    pub fn global_to_local(&self, id: ComponentId, global_col: u16, global_row: u16) -> (u16, u16) {
+        let rect = self.rects.get(id).copied().unwrap_or_default();
+        let scroll_x = self.scroll_x.get(id).copied().unwrap_or(0);
+        let scroll_y = self.scroll_y.get(id).copied().unwrap_or(0);
+
+        // Subtract rect offset to get local rect coordinates
+        let local_col = global_col.saturating_sub(rect.x);
+        let local_row = global_row.saturating_sub(rect.y);
+
+        // Add scroll offset to get position in the component's content
+        let cursor_col = (local_col as usize + scroll_x) as u16;
+        let cursor_row = (local_row as usize + scroll_y) as u16;
+
+        (cursor_col, cursor_row)
+    }
+
+    /// Convert local component coordinates to global screen coordinates
+    /// This accounts for the component's rect position and scroll offset
+    pub fn local_to_global(&self, id: ComponentId, local_col: u16, local_row: u16) -> (u16, u16) {
+        let rect = self.rects.get(id).copied().unwrap_or_default();
+        let scroll_x = self.scroll_x.get(id).copied().unwrap_or(0);
+        let scroll_y = self.scroll_y.get(id).copied().unwrap_or(0);
+
+        // Subtract scroll offset to get position within visible area
+        let visible_col = (local_col as usize).saturating_sub(scroll_x) as u16;
+        let visible_row = (local_row as usize).saturating_sub(scroll_y) as u16;
+
+        // Add rect offset to get global screen coordinates
+        let global_col = visible_col.saturating_add(rect.x);
+        let global_row = visible_row.saturating_add(rect.y);
+
+        (global_col, global_row)
     }
 
     /// Calculate actual width/height from a Measurement given available space
@@ -996,6 +1086,24 @@ impl<'a> ComponentTree<'a> {
         // Handle scroll events at tree level
         if let ReovimEvent::Mouse(mouse_event) = &event {
             match mouse_event.kind {
+                crossterm::event::MouseEventKind::Down(crossterm::event::MouseButton::Left) => {
+                    let (col, row) =
+                        self.global_to_local(self.focus, mouse_event.column, mouse_event.row);
+                    let formatting = self.formatting.get(self.focus).copied().unwrap_or_default();
+                    let rect = self.rect(self.focus).unwrap_or_default();
+                    if let Some(component) = self.components.get(self.focus) {
+                        let (min_col, max_col, min_row, max_row) =
+                            component.cursor_bounds(rect.width, rect.height, &formatting);
+                        if let Some(cursor_col) = self.cursor_col.get_mut(self.focus) {
+                            *cursor_col = col.clamp(min_col, max_col);
+                        }
+                        if let Some(cursor_row) = self.cursor_row.get_mut(self.focus) {
+                            *cursor_row = row.clamp(min_row, max_row);
+                        }
+                        self.mark_dirty(self.focus);
+                    }
+                    return Ok(());
+                }
                 crossterm::event::MouseEventKind::ScrollUp => {
                     let current_scroll = self.scroll_y.get(self.focus).copied().unwrap_or(0);
                     let new_scroll = current_scroll.saturating_sub(1);
