@@ -7,7 +7,7 @@ use crate::{
 
 use anyhow::Result;
 use crossterm::{
-    event::{KeyCode, KeyEvent, MouseEvent, MouseEventKind},
+    event::{KeyCode, KeyEvent},
     style::Color,
 };
 use unicode_width::{UnicodeWidthChar, UnicodeWidthStr};
@@ -365,13 +365,18 @@ impl<'a> Component for TextComponent<'a> {
     }
 
     fn scroll_bounds(&self) -> (usize, usize) {
-        // Min scroll is 0, max scroll is the total lines minus 1
-        let max_scroll = self
+        // Calculate total content height across all lines
+        let total_height = self
             .lines
             .iter()
-            .fold(0u16, |acc, line| acc + line.height())
-            .saturating_sub(1);
-        (0, max_scroll as usize)
+            .fold(0u16, |acc, line| acc + line.height());
+
+        let sub_by = self.lines.last().map(|line| line.height()).unwrap_or(0);
+
+        // Max scroll should allow content to fill the viewport
+        // max_scroll = total_height - viewport_height, ensuring last content reaches bottom
+        let max_scroll = (total_height.max(0) as usize).saturating_sub(sub_by as usize);
+        (0, max_scroll)
     }
 
     fn default_formatting(&self) -> Formatting {
