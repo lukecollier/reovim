@@ -7,7 +7,7 @@ use crate::tui::text::TextComponent;
 use crate::tui::{Component, Formatting, Measurement, Overflow, Rect};
 use anyhow::Result;
 use crossterm::ExecutableCommand;
-use crossterm::cursor::MoveTo;
+use crossterm::cursor::{MoveTo, Hide, Show};
 use crossterm::style::{Print, ResetColor, SetBackgroundColor, SetForegroundColor};
 use std::io::Stdout;
 use tracing::debug;
@@ -39,6 +39,69 @@ impl<'a> ComponentCommands<'a> {
     /// Get the IDs of this component's children
     pub fn children(&self) -> Option<Vec<ComponentId>> {
         self.tree.children(self.self_id)
+    }
+
+    /// Set horizontal scroll offset
+    pub fn set_scroll_x(&mut self, offset: usize) {
+        if let Some(scroll) = self.tree.scroll_x.get_mut(self.self_id) {
+            *scroll = offset;
+        }
+    }
+
+    /// Set vertical scroll offset
+    pub fn set_scroll_y(&mut self, offset: usize) {
+        if let Some(scroll) = self.tree.scroll_y.get_mut(self.self_id) {
+            *scroll = offset;
+        }
+    }
+
+    /// Get the current horizontal scroll offset
+    pub fn get_scroll_x(&self) -> usize {
+        self.tree.scroll_x.get(self.self_id).copied().unwrap_or(0)
+    }
+
+    /// Get the current vertical scroll offset
+    pub fn get_scroll_y(&self) -> usize {
+        self.tree.scroll_y.get(self.self_id).copied().unwrap_or(0)
+    }
+
+    /// Set cursor position (col, row) for the component
+    pub fn set_cursor(&mut self, col: u16, row: u16) {
+        if let Some(col_slot) = self.tree.cursor_col.get_mut(self.self_id) {
+            *col_slot = col;
+        }
+        if let Some(row_slot) = self.tree.cursor_row.get_mut(self.self_id) {
+            *row_slot = row;
+        }
+        self.tree.mark_dirty(self.self_id);
+    }
+
+    /// Move cursor by the given offset (col_delta, row_delta)
+    pub fn move_cursor(&mut self, col_delta: i32, row_delta: i32) {
+        if let Some(col_slot) = self.tree.cursor_col.get_mut(self.self_id) {
+            if col_delta < 0 {
+                *col_slot = col_slot.saturating_sub((-col_delta) as u16);
+            } else {
+                *col_slot = col_slot.saturating_add(col_delta as u16);
+            }
+        }
+
+        if let Some(row_slot) = self.tree.cursor_row.get_mut(self.self_id) {
+            if row_delta < 0 {
+                *row_slot = row_slot.saturating_sub((-row_delta) as u16);
+            } else {
+                *row_slot = row_slot.saturating_add(row_delta as u16);
+            }
+        }
+
+        self.tree.mark_dirty(self.self_id);
+    }
+
+    /// Get current cursor position (col, row)
+    pub fn get_cursor(&self) -> (u16, u16) {
+        let col = self.tree.cursor_col.get(self.self_id).copied().unwrap_or(0);
+        let row = self.tree.cursor_row.get(self.self_id).copied().unwrap_or(0);
+        (col, row)
     }
 }
 
@@ -94,6 +157,16 @@ impl<'a> ComponentNode<'a> {
         }
     }
 
+    pub fn scroll_bounds(&self) -> (usize, usize) {
+        match self {
+            ComponentNode::Frame(_) => (0, usize::MAX),
+            ComponentNode::Status(component) => component.scroll_bounds(),
+            ComponentNode::Text(component) => component.scroll_bounds(),
+            ComponentNode::Gutter(component) => component.scroll_bounds(),
+            ComponentNode::Debug(component) => component.scroll_bounds(),
+        }
+    }
+
     pub fn children(&self) -> Option<&[ComponentId]> {
         match self {
             ComponentNode::Frame(frame) => Some(&frame.children),
@@ -125,6 +198,18 @@ pub struct ComponentTree<'a> {
     root: ComponentId,
     /// Components that have had state change
     dirty: Vec<ComponentId>,
+    /// Cursor position for the focused component (if any)
+    cursor_pos: Option<(u16, u16)>,
+    /// scroll_x[i] is the horizontal scroll offset for component i
+    scroll_x: Vec<usize>,
+    /// scroll_y[i] is the vertical scroll offset for component i
+    scroll_y: Vec<usize>,
+    /// cursor_col[i] is the cursor column for component i
+    cursor_col: Vec<u16>,
+    /// cursor_row[i] is the cursor row for component i
+    cursor_row: Vec<u16>,
+    /// last_cursor_row[i] is the cursor row from the previous frame for component i
+    last_cursor_row: Vec<u16>,
 }
 
 impl<'a> ComponentTree<'a> {
@@ -142,6 +227,12 @@ impl<'a> ComponentTree<'a> {
             formatting: vec![Formatting::default()],
             root: 0,
             dirty: vec![0],
+            cursor_pos: None,
+            scroll_x: vec![0],
+            scroll_y: vec![0],
+            cursor_col: vec![0],
+            cursor_row: vec![0],
+            last_cursor_row: vec![0],
         }
     }
 
@@ -187,6 +278,11 @@ impl<'a> ComponentTree<'a> {
             height: 0,
         });
         self.formatting.push(formatting);
+        self.scroll_x.push(0);
+        self.scroll_y.push(0);
+        self.cursor_col.push(0);
+        self.cursor_row.push(0);
+        self.last_cursor_row.push(0);
 
         // Mark as dirty so it renders on first frame (but not Frames, which shouldn't clear)
         if !is_frame {
@@ -509,26 +605,103 @@ impl<'a> ComponentTree<'a> {
     }
 
     /// Render the entire tree to stdout
-    pub fn render(&self, stdout: &mut Stdout) -> Result<()> {
+    pub fn render(&mut self, stdout: &mut Stdout) -> Result<()> {
+        // Hide cursor during rendering
+        stdout.execute(Hide)?;
+
+        // Clear previous cursor position
+        self.cursor_pos = None;
+
+        // Render all nodes
         self.render_node(self.root, stdout)?;
+
+        // Show cursor if we found one
+        if let Some((x, y)) = self.cursor_pos {
+            stdout.execute(MoveTo(x, y))?;
+            stdout.execute(Show)?;
+        }
+
         Ok(())
     }
 
-    fn render_node(&self, id: ComponentId, stdout: &mut Stdout) -> Result<()> {
+    fn render_node(&mut self, id: ComponentId, stdout: &mut Stdout) -> Result<()> {
+        let rect = self.rects.get(id).copied().unwrap_or_default();
+        let formatting = self.formatting.get(id).copied().unwrap_or_default();
+
+        debug!(
+            "render_node id={}: rect=({},{}) {}x{} dirty={}",
+            id,
+            rect.x,
+            rect.y,
+            rect.width,
+            rect.height,
+            self.is_dirty(id)
+        );
+
+        // Get cursor position from tree (absolute values)
+        let cursor_tree_col = self.cursor_col.get(id).copied().unwrap_or(0);
+        let cursor_tree_row = self.cursor_row.get(id).copied().unwrap_or(0);
+
+        // Get current scroll
+        let scroll_x = self.scroll_x.get(id).copied().unwrap_or(0);
+        let scroll_y = self.scroll_y.get(id).copied().unwrap_or(0);
+
+        // Handle cursor position and scrolling for focused component (before rendering)
+        let mut final_scroll_y = scroll_y;
+        if id == self.focus {
+            let last_cursor_row = self.last_cursor_row.get(id).copied().unwrap_or(0);
+
+            // Only auto-scroll if the cursor position changed (keyboard movement)
+            let cursor_moved = cursor_tree_row != last_cursor_row;
+
+            // Auto-scroll to keep cursor visible if component has Overflow::Scroll and cursor moved
+            if formatting.overflow_y == Overflow::Scroll && cursor_moved {
+                let mut new_scroll_y = scroll_y;
+
+                if cursor_tree_row < scroll_y as u16 {
+                    // Cursor is above visible range, scroll up to show it
+                    new_scroll_y = cursor_tree_row as usize;
+                } else if cursor_tree_row >= (scroll_y + rect.height as usize) as u16 {
+                    // Cursor is below visible range, scroll down to show it at bottom
+                    let visible_height = rect.height as usize;
+                    new_scroll_y = (cursor_tree_row as usize).saturating_sub(visible_height - 1);
+                }
+
+                // Update scroll and mark as dirty for re-render
+                if new_scroll_y != scroll_y {
+                    final_scroll_y = new_scroll_y;
+                    if let Some(scroll) = self.scroll_y.get_mut(id) {
+                        *scroll = new_scroll_y;
+                    }
+                    self.mark_dirty(id);
+                }
+            }
+
+            // Clamp cursor to visible range (for mouse scrolling)
+            if formatting.overflow_y == Overflow::Scroll {
+                let visible_height = rect.height as usize;
+                let mut new_cursor_row = cursor_tree_row;
+
+                // If cursor is above visible range, move it to the top
+                if cursor_tree_row < final_scroll_y as u16 {
+                    new_cursor_row = final_scroll_y as u16;
+                    if let Some(cursor) = self.cursor_row.get_mut(id) {
+                        *cursor = new_cursor_row;
+                    }
+                    self.mark_dirty(id);
+                } else if cursor_tree_row >= (final_scroll_y + visible_height) as u16 {
+                    // If cursor is below visible range, move it to the bottom
+                    new_cursor_row = (final_scroll_y + visible_height.saturating_sub(1)) as u16;
+                    if let Some(cursor) = self.cursor_row.get_mut(id) {
+                        *cursor = new_cursor_row;
+                    }
+                    self.mark_dirty(id);
+                }
+            }
+        }
+
+        // Now get the component after all mutable operations are done
         if let Some(component) = self.components.get(id) {
-            let rect = self.rects.get(id).copied().unwrap_or_default();
-            let formatting = self.formatting.get(id).copied().unwrap_or_default();
-
-            debug!(
-                "render_node id={}: rect=({},{}) {}x{} dirty={}",
-                id,
-                rect.x,
-                rect.y,
-                rect.width,
-                rect.height,
-                self.is_dirty(id)
-            );
-
             // Create a virtual buffer for this component
             let mut buffer = TerminalBuffer::new(rect.width, rect.height);
 
@@ -536,6 +709,16 @@ impl<'a> ComponentTree<'a> {
             if id == self.focus {
                 buffer.set_focus(true);
             }
+
+            // Set scroll offset in buffer
+            buffer.set_scroll(scroll_x, final_scroll_y);
+
+            // Convert absolute cursor position to relative position within visible area
+            let relative_row = (cursor_tree_row as usize).saturating_sub(final_scroll_y);
+            let relative_col = cursor_tree_col;
+
+            // Set cursor position in buffer as component-relative
+            buffer.set_cursor_position(relative_col, relative_row as u16);
 
             // Render component into the virtual buffer
             if self.is_dirty(id) {
@@ -546,9 +729,23 @@ impl<'a> ComponentTree<'a> {
                     Overflow::Wrap => {
                         self.composite_buffer_wrap(stdout, &buffer, rect.x, rect.y)?;
                     }
-                    Overflow::Hide => {
+                    Overflow::Hide | Overflow::Scroll => {
                         self.composite_buffer_hide(stdout, &buffer, rect.x, rect.y)?;
                     }
+                }
+            }
+
+            // Store final screen cursor position for terminal output
+            if id == self.focus && relative_row < rect.height as usize {
+                let cursor_col = rect.x + relative_col;
+                let cursor_row = rect.y + relative_row as u16;
+                self.cursor_pos = Some((cursor_col, cursor_row));
+            }
+
+            // Update last_cursor_row for next frame's change detection
+            if id == self.focus {
+                if let Some(last_row) = self.last_cursor_row.get_mut(id) {
+                    *last_row = cursor_tree_row;
                 }
             }
         }
@@ -592,6 +789,8 @@ impl<'a> ComponentTree<'a> {
                     x += 1;
                 }
                 TerminalCommand::Newline => {
+                    // Reset colors before newline
+                    stdout.execute(ResetColor)?;
                     // Pad the rest of the line with spaces
                     while x < buffer.width() {
                         stdout.execute(MoveTo(start_x + x, start_y + y))?;
@@ -613,6 +812,8 @@ impl<'a> ComponentTree<'a> {
             }
         }
 
+        // Reset colors before padding the rest of the current row if incomplete
+        stdout.execute(ResetColor)?;
         // Pad the rest of the current row if incomplete
         while x < buffer.width() {
             stdout.execute(MoveTo(start_x + x, start_y + y))?;
@@ -672,6 +873,7 @@ impl<'a> ComponentTree<'a> {
                         stdout.execute(Print(' '))?;
                         x += 1;
                     }
+                    stdout.execute(ResetColor)?;
                     x = 0;
                     y += 1;
                 }
@@ -693,6 +895,7 @@ impl<'a> ComponentTree<'a> {
             stdout.execute(Print(' '))?;
             x += 1;
         }
+        stdout.execute(ResetColor)?;
 
         // Clear any remaining rows beyond what was rendered
         y += 1;
@@ -709,8 +912,46 @@ impl<'a> ComponentTree<'a> {
 
     /// Handle an event for the entire tree
     pub fn update(&mut self, event: ReovimEvent) -> Result<()> {
-        // For now, just pass to root
-        // In the future: focus system, event routing, etc.
+        // Handle scroll events at tree level
+        if let ReovimEvent::Mouse(mouse_event) = &event {
+            match mouse_event.kind {
+                crossterm::event::MouseEventKind::ScrollUp => {
+                    let current_scroll = self.scroll_y.get(self.focus).copied().unwrap_or(0);
+                    let new_scroll = current_scroll.saturating_sub(1);
+
+                    // Get scroll bounds from the focused component
+                    if let Some(component) = self.components.get(self.focus) {
+                        let (min_scroll, max_scroll) = component.scroll_bounds();
+                        let clamped_scroll = new_scroll.max(min_scroll).min(max_scroll);
+                        self.scroll_y.insert(self.focus, clamped_scroll);
+                    } else {
+                        self.scroll_y.insert(self.focus, new_scroll);
+                    }
+
+                    self.mark_dirty(self.focus);
+                    return Ok(());
+                }
+                crossterm::event::MouseEventKind::ScrollDown => {
+                    let current_scroll = self.scroll_y.get(self.focus).copied().unwrap_or(0);
+                    let new_scroll = current_scroll + 1;
+
+                    // Get scroll bounds from the focused component
+                    if let Some(component) = self.components.get(self.focus) {
+                        let (min_scroll, max_scroll) = component.scroll_bounds();
+                        let clamped_scroll = new_scroll.max(min_scroll).min(max_scroll);
+                        self.scroll_y.insert(self.focus, clamped_scroll);
+                    } else {
+                        self.scroll_y.insert(self.focus, new_scroll);
+                    }
+
+                    self.mark_dirty(self.focus);
+                    return Ok(());
+                }
+                _ => {}
+            }
+        }
+
+        // For other events, pass to root
         self.update_node(self.root, &event)?;
         Ok(())
     }

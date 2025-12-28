@@ -16,11 +16,9 @@ use crossterm::{
 };
 use tracing::info;
 use tracing_subscriber::EnvFilter;
-use unicode_width::UnicodeWidthStr;
 
 use crate::tui::{
     Formatting, Measurement,
-    gutter::GutterComponent,
     status::StatusComponent,
     text::TextComponent,
     tree::{ComponentNode, ComponentTree, Frame, LayoutMode},
@@ -72,20 +70,6 @@ fn main() -> Result<()> {
     result
 }
 
-struct Cursor {
-    row: usize,
-    col: usize,
-}
-
-impl Default for Cursor {
-    fn default() -> Self {
-        Self {
-            row: Default::default(),
-            col: Default::default(),
-        }
-    }
-}
-
 struct Line {
     line_number: usize,
     /// Need's to be string for mutability, womp womp
@@ -108,11 +92,6 @@ impl Line {
             line_number,
             contents: String::from(contents),
         }
-    }
-
-    /// First we get the cols_width_between, then we access perform to action
-    fn cols_width_between(&self, range: Range<usize>) -> usize {
-        self[range].width()
     }
 }
 
@@ -201,7 +180,7 @@ impl Buffer {
             tui::tree::ComponentNode::Frame(editor_frame),
             editor_formatting,
         )?;
-        let text = TextComponent::new(&self.contents, 0);
+        let text = TextComponent::new(&self.contents, self.dimensions.0);
         tree.add_child(editor_frame_id, ComponentNode::Text(text))?;
 
         let status_line = StatusComponent::new(file_name);
@@ -212,6 +191,7 @@ impl Buffer {
             tree.layout(self.dimensions.0, self.dimensions.1);
             tree.render(&mut stdout)?;
             tree.clear_dirty();
+            stdout.flush()?;
 
             let crossterm_event = crossterm::event::read().expect("failed to read event");
             // nowe we handle them events

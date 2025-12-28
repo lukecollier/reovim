@@ -10,6 +10,18 @@ pub mod terminal_buffer;
 pub mod text;
 pub mod tree;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Cursor {
+    pub col: u16,
+    pub row: u16,
+}
+
+impl Cursor {
+    fn new() -> Cursor {
+        Cursor { row: 0, col: 0 }
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub struct Rect {
     pub x: u16,
@@ -41,6 +53,8 @@ pub enum Overflow {
     Wrap,
     /// Hides content after the overflow
     Hide,
+    /// Content can be scrolled
+    Scroll,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -111,6 +125,12 @@ pub trait Component {
         _commands: &mut tree::ComponentCommands,
     ) -> Result<bool> {
         Ok(false)
+    }
+
+    /// Return the minimum and maximum scroll offsets allowed for this component
+    /// (min_scroll, max_scroll)
+    fn scroll_bounds(&self) -> (usize, usize) {
+        (0, usize::MAX)
     }
 
     /// Provide default formatting for this component
