@@ -66,31 +66,78 @@ impl<'a> ComponentCommands<'a> {
 
     /// Set cursor position (col, row) for the component
     pub fn set_cursor(&mut self, col: u16, row: u16) {
+        // Get rect dimensions, formatting, and cursor bounds from the component
+        let rect = self
+            .tree
+            .rects
+            .get(self.self_id)
+            .copied()
+            .unwrap_or_default();
+        let formatting = self
+            .tree
+            .formatting
+            .get(self.self_id)
+            .copied()
+            .unwrap_or_default();
+        let (min_col, max_col, min_row, max_row) = self
+            .tree
+            .components
+            .get(self.self_id)
+            .map(|comp| comp.cursor_bounds(rect.width, rect.height, &formatting))
+            .unwrap_or((0, u16::MAX, 0, u16::MAX));
+
+        let clamped_col = col.max(min_col).min(max_col);
+        let clamped_row = row.max(min_row).min(max_row);
+
         if let Some(col_slot) = self.tree.cursor_col.get_mut(self.self_id) {
-            *col_slot = col;
+            *col_slot = clamped_col;
         }
         if let Some(row_slot) = self.tree.cursor_row.get_mut(self.self_id) {
-            *row_slot = row;
+            *row_slot = clamped_row;
         }
         self.tree.mark_dirty(self.self_id);
     }
 
     /// Move cursor by the given offset (col_delta, row_delta)
     pub fn move_cursor(&mut self, col_delta: i32, row_delta: i32) {
+        // Get rect dimensions, formatting, and cursor bounds from the component
+        let rect = self
+            .tree
+            .rects
+            .get(self.self_id)
+            .copied()
+            .unwrap_or_default();
+        let formatting = self
+            .tree
+            .formatting
+            .get(self.self_id)
+            .copied()
+            .unwrap_or_default();
+        let (min_col, max_col, min_row, max_row) = self
+            .tree
+            .components
+            .get(self.self_id)
+            .map(|comp| comp.cursor_bounds(rect.width, rect.height, &formatting))
+            .unwrap_or((0, u16::MAX, 0, u16::MAX));
+
         if let Some(col_slot) = self.tree.cursor_col.get_mut(self.self_id) {
-            if col_delta < 0 {
-                *col_slot = col_slot.saturating_sub((-col_delta) as u16);
+            let current_col = *col_slot;
+            let new_col = if col_delta < 0 {
+                current_col.saturating_sub((-col_delta) as u16)
             } else {
-                *col_slot = col_slot.saturating_add(col_delta as u16);
-            }
+                current_col.saturating_add(col_delta as u16)
+            };
+            *col_slot = new_col.max(min_col).min(max_col);
         }
 
         if let Some(row_slot) = self.tree.cursor_row.get_mut(self.self_id) {
-            if row_delta < 0 {
-                *row_slot = row_slot.saturating_sub((-row_delta) as u16);
+            let current_row = *row_slot;
+            let new_row = if row_delta < 0 {
+                current_row.saturating_sub((-row_delta) as u16)
             } else {
-                *row_slot = row_slot.saturating_add(row_delta as u16);
-            }
+                current_row.saturating_add(row_delta as u16)
+            };
+            *row_slot = new_row.max(min_row).min(max_row);
         }
 
         self.tree.mark_dirty(self.self_id);
@@ -166,6 +213,21 @@ impl<'a> ComponentNode<'a> {
         }
     }
 
+    pub fn cursor_bounds(
+        &self,
+        width: u16,
+        height: u16,
+        formatting: &Formatting,
+    ) -> (u16, u16, u16, u16) {
+        match self {
+            ComponentNode::Frame(_) => (0, u16::MAX, 0, u16::MAX),
+            ComponentNode::Status(component) => component.cursor_bounds(width, height, formatting),
+            ComponentNode::Text(component) => component.cursor_bounds(width, height, formatting),
+            ComponentNode::Gutter(component) => component.cursor_bounds(width, height, formatting),
+            ComponentNode::Debug(component) => component.cursor_bounds(width, height, formatting),
+        }
+    }
+
     pub fn children(&self) -> Option<&[ComponentId]> {
         match self {
             ComponentNode::Frame(frame) => Some(&frame.children),
@@ -209,6 +271,8 @@ pub struct ComponentTree<'a> {
     cursor_row: Vec<u16>,
     /// last_cursor_row[i] is the cursor row from the previous frame for component i
     last_cursor_row: Vec<u16>,
+    /// cursor_initialized[i] tracks whether cursor has been set to minimum bounds for component i
+    cursor_initialized: Vec<bool>,
 }
 
 impl<'a> ComponentTree<'a> {
@@ -232,6 +296,7 @@ impl<'a> ComponentTree<'a> {
             cursor_col: vec![0],
             cursor_row: vec![0],
             last_cursor_row: vec![0],
+            cursor_initialized: vec![false],
         }
     }
 
@@ -279,9 +344,11 @@ impl<'a> ComponentTree<'a> {
         self.formatting.push(formatting);
         self.scroll_x.push(0);
         self.scroll_y.push(0);
+        // Cursor will be initialized to minimum bounds after first layout
         self.cursor_col.push(0);
         self.cursor_row.push(0);
         self.last_cursor_row.push(0);
+        self.cursor_initialized.push(false);
 
         // Mark as dirty so it renders on first frame (but not Frames, which shouldn't clear)
         if !is_frame {
@@ -620,12 +687,31 @@ impl<'a> ComponentTree<'a> {
             stdout.execute(Show)?;
         }
 
+        self.clear_dirty();
+
         Ok(())
     }
 
     fn render_node(&mut self, id: ComponentId, stdout: &mut Stdout) -> Result<()> {
         let rect = self.rects.get(id).copied().unwrap_or_default();
         let formatting = self.formatting.get(id).copied().unwrap_or_default();
+
+        // Initialize cursor to minimum bounds on first render
+        if !self.cursor_initialized.get(id).copied().unwrap_or(false) {
+            if let Some(component) = self.components.get(id) {
+                let (min_col, _, min_row, _) =
+                    component.cursor_bounds(rect.width, rect.height, &formatting);
+                if let Some(col_slot) = self.cursor_col.get_mut(id) {
+                    *col_slot = min_col;
+                }
+                if let Some(row_slot) = self.cursor_row.get_mut(id) {
+                    *row_slot = min_row;
+                }
+                if let Some(init_slot) = self.cursor_initialized.get_mut(id) {
+                    *init_slot = true;
+                }
+            }
+        }
 
         // Get cursor position from tree (absolute values)
         let cursor_tree_col = self.cursor_col.get(id).copied().unwrap_or(0);
@@ -669,7 +755,7 @@ impl<'a> ComponentTree<'a> {
             // Clamp cursor to visible range (for mouse scrolling)
             if formatting.overflow_y == Overflow::Scroll {
                 let visible_height = rect.height as usize;
-                let mut new_cursor_row = cursor_tree_row;
+                let new_cursor_row;
 
                 // If cursor is above visible range, move it to the top
                 if cursor_tree_row < final_scroll_y as u16 {
@@ -704,7 +790,7 @@ impl<'a> ComponentTree<'a> {
 
             // Convert absolute cursor position to relative position within visible area
             let relative_row = (cursor_tree_row as usize).saturating_sub(final_scroll_y);
-            let relative_col = cursor_tree_col;
+            let relative_col = (cursor_tree_col as usize).saturating_sub(scroll_x) as u16;
 
             // Set cursor position in buffer as component-relative
             buffer.set_cursor_position(relative_col, relative_row as u16);
@@ -725,8 +811,11 @@ impl<'a> ComponentTree<'a> {
             }
 
             // Store final screen cursor position for terminal output
-            if id == self.focus && relative_row < rect.height as usize {
-                let cursor_col = rect.x + relative_col;
+            if id == self.focus
+                && relative_row < rect.height as usize
+                && (relative_col as u16) < rect.width
+            {
+                let cursor_col = rect.x + relative_col as u16;
                 let cursor_row = rect.y + relative_row as u16;
                 self.cursor_pos = Some((cursor_col, cursor_row));
             }

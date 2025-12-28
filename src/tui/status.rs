@@ -42,8 +42,7 @@ impl<'a> Component for StatusComponent<'a> {
         _event: ReovimEvent,
         _commands: &mut super::tree::ComponentCommands,
     ) -> Result<bool> {
-        // todo: broken logic, for now just re-render everything
-        Ok(true)
+        Ok(false)
     }
 
     fn default_formatting(&self) -> Formatting {

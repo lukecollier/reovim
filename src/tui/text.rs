@@ -377,6 +377,39 @@ impl<'a> Component for TextComponent<'a> {
         (0, max_scroll)
     }
 
+    fn cursor_bounds(
+        &self,
+        width: u16,
+        height: u16,
+        formatting: &crate::tui::Formatting,
+    ) -> (u16, u16, u16, u16) {
+        // (min_col, max_col, min_row, max_row)
+        let gutter = self.gutter_width();
+
+        // For vertical bounds: if Overflow::Scroll, allow cursor to move into content beyond visible area
+        let max_row = if matches!(formatting.overflow_y, crate::tui::Overflow::Scroll) {
+            // Allow scrolling: cursor can move to end of all content
+            let total_height = self
+                .lines
+                .iter()
+                .fold(0u16, |acc, line| acc + line.height());
+            total_height.saturating_sub(1)
+        } else {
+            // Constrain to visible area
+            height.saturating_sub(1)
+        };
+
+        // For horizontal bounds: similar logic
+        let max_col = if matches!(formatting.overflow_x, crate::tui::Overflow::Scroll) {
+            // Allow scrolling: unrestricted width
+            u16::MAX
+        } else {
+            width.saturating_sub(1)
+        };
+
+        (gutter, max_col, 0, max_row)
+    }
+
     fn default_formatting(&self) -> Formatting {
         Formatting {
             preferred_x: Measurement::Cell(0),

@@ -190,7 +190,6 @@ impl Buffer {
             self.dimensions = crossterm::terminal::size()?;
             tree.layout(self.dimensions.0, self.dimensions.1);
             tree.render(&mut stdout)?;
-            tree.clear_dirty();
             stdout.flush()?;
 
             let crossterm_event = crossterm::event::read().expect("failed to read event");

@@ -133,6 +133,12 @@ pub trait Component {
         (0, usize::MAX)
     }
 
+    /// Return the cursor bounds allowed for this component
+    /// (min_col, max_col, min_row, max_row)
+    fn cursor_bounds(&self, width: u16, height: u16, _formatting: &Formatting) -> (u16, u16, u16, u16) {
+        (0, width, 0, height)
+    }
+
     /// Provide default formatting for this component
     fn default_formatting(&self) -> Formatting {
         Formatting::default()
