@@ -1102,22 +1102,9 @@ impl<'a> ComponentTree<'a> {
         if let ReovimEvent::Mouse(mouse_event) = &event {
             match mouse_event.kind {
                 MouseEventKind::Down(MouseButton::Left) => {
-                    let (col, row) =
-                        self.global_to_local(self.focus, mouse_event.column, mouse_event.row);
-                    let formatting = self.formatting.get(self.focus).copied().unwrap_or_default();
                     let rect = self.rect(self.focus).unwrap_or_default();
                     if rect.contains(mouse_event.column, mouse_event.row) {
-                        if let Some(component) = self.components.get(self.focus) {
-                            let (min_col, max_col, min_row, max_row) =
-                                component.cursor_bounds(rect.width, rect.height, &formatting);
-                            if let Some(cursor_col) = self.cursor_col.get_mut(self.focus) {
-                                *cursor_col = col.clamp(min_col, max_col);
-                            }
-                            if let Some(cursor_row) = self.cursor_row.get_mut(self.focus) {
-                                *cursor_row = row.clamp(min_row, max_row);
-                            }
-                            self.mark_dirty(self.focus);
-                        }
+                        self.update_node(self.root, &event)?;
                     }
                     return Ok(());
                 }

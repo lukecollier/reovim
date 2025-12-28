@@ -7,7 +7,7 @@ use crate::{
 
 use anyhow::Result;
 use crossterm::{
-    event::{KeyCode, KeyEvent},
+    event::{KeyCode, KeyEvent, MouseButton, MouseEvent, MouseEventKind},
     style::Color,
 };
 use unicode_width::{UnicodeWidthChar, UnicodeWidthStr};
@@ -314,6 +314,16 @@ impl<'a> Component for TextComponent<'a> {
     ) -> Result<bool> {
         if commands.has_focus() {
             match event {
+                ReovimEvent::Mouse(MouseEvent {
+                    kind: MouseEventKind::Down(MouseButton::Left),
+                    column,
+                    row,
+                    modifiers: _,
+                }) => {
+                    let (local_col, local_row) = commands.global_to_local(column, row);
+                    commands.set_cursor(local_col, local_row);
+                }
+
                 ReovimEvent::Resize(row, _) => {
                     self.update_lines(row);
                     return Ok(true); // Component changed, needs re-render
