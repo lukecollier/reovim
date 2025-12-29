@@ -33,7 +33,7 @@ impl DebugComponent {
     }
 }
 
-impl Component for DebugComponent {
+impl<'a> Component for DebugComponent {
     fn render(&self, buffer: &mut TerminalBuffer) -> Result<()> {
         buffer.set_background(self.color);
 

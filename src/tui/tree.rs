@@ -1,16 +1,16 @@
 use crate::event::ReovimEvent;
 use crate::tui::debug::DebugComponent;
-use crate::tui::gutter::GutterComponent;
 use crate::tui::status::StatusComponent;
 use crate::tui::terminal_buffer::{TerminalBuffer, TerminalCommand};
 use crate::tui::text::TextComponent;
-use crate::tui::{Component, Formatting, Measurement, Overflow, Rect};
+use crate::tui::{Component, Cursor, CursorStyle, Formatting, Measurement, Overflow, Rect};
 use anyhow::Result;
 use crossterm::ExecutableCommand;
-use crossterm::cursor::{Hide, MoveTo, Show};
+use crossterm::cursor::{Hide, MoveTo, SetCursorStyle, Show};
 use crossterm::event::{MouseButton, MouseEventKind};
 use crossterm::style::{Print, ResetColor, SetBackgroundColor, SetForegroundColor};
 use std::io::Stdout;
+use tracing::debug;
 
 pub type ComponentId = usize;
 
@@ -113,6 +113,14 @@ impl<'a> ComponentCommands<'a> {
     }
 
     /// Set cursor position (col, row) for the component
+    pub fn clamp_cursor_col(&mut self, min_col: u16, max_col: u16) {
+        if let Some(col_slot) = self.tree.cursor_col.get_mut(self.self_id) {
+            *col_slot = (*col_slot).clamp(min_col, max_col);
+        }
+        self.tree.mark_dirty(self.self_id);
+    }
+
+    /// Set cursor position (col, row) for the component
     pub fn set_cursor(&mut self, col: u16, row: u16) {
         // Get rect dimensions, formatting, and cursor bounds from the component
         let rect = self
@@ -191,11 +199,34 @@ impl<'a> ComponentCommands<'a> {
         self.tree.mark_dirty(self.self_id);
     }
 
-    /// Get current cursor position (col, row)
-    pub fn get_cursor(&self) -> (u16, u16) {
+    /// Get the cursor position, accounting for scroll offset (returns localized coordinates)
+    pub fn get_cursor(&self) -> Cursor {
         let col = self.tree.cursor_col.get(self.self_id).copied().unwrap_or(0);
         let row = self.tree.cursor_row.get(self.self_id).copied().unwrap_or(0);
-        (col, row)
+        let scroll_x = self.tree.scroll_x.get(self.self_id).copied().unwrap_or(0);
+        let scroll_y = self.tree.scroll_y.get(self.self_id).copied().unwrap_or(0);
+
+        // Convert absolute cursor position to relative position within visible area
+        let relative_col = (col as usize).saturating_sub(scroll_x) as u16;
+        let relative_row = (row as usize).saturating_sub(scroll_y) as u16;
+
+        Cursor::from_xy(relative_row, relative_col)
+    }
+
+    /// Set the cursor display style for this component
+    pub fn set_cursor_style(&mut self, style: CursorStyle) {
+        if let Some(style_slot) = self.tree.cursor_style.get_mut(self.self_id) {
+            *style_slot = style;
+        }
+    }
+
+    /// Get the current cursor display style for this component
+    pub fn get_cursor_style(&self) -> CursorStyle {
+        self.tree
+            .cursor_style
+            .get(self.self_id)
+            .copied()
+            .unwrap_or_default()
     }
 }
 
@@ -219,8 +250,8 @@ pub enum ComponentNode<'a> {
     Frame(Frame),
     Status(StatusComponent<'a>),
     Text(TextComponent<'a>),
-    Gutter(GutterComponent),
     Debug(DebugComponent),
+    Component(Box<dyn Component>),
 }
 
 impl<'a> ComponentNode<'a> {
@@ -232,8 +263,8 @@ impl<'a> ComponentNode<'a> {
             }
             ComponentNode::Status(status_component) => status_component.render(buffer),
             ComponentNode::Text(text_component) => text_component.render(buffer),
-            ComponentNode::Gutter(component) => component.render(buffer),
             ComponentNode::Debug(component) => component.render(buffer),
+            ComponentNode::Component(component) => component.render(buffer),
         }
     }
 
@@ -246,8 +277,8 @@ impl<'a> ComponentNode<'a> {
             ComponentNode::Frame(_) => Ok(false),
             ComponentNode::Status(status_component) => status_component.update(event, commands),
             ComponentNode::Text(text_component) => text_component.update(event, commands),
-            ComponentNode::Gutter(component) => component.update(event, commands),
             ComponentNode::Debug(component) => component.update(event, commands),
+            ComponentNode::Component(component) => component.update(event, commands),
         }
     }
 
@@ -256,8 +287,8 @@ impl<'a> ComponentNode<'a> {
             ComponentNode::Frame(_) => (0, usize::MAX),
             ComponentNode::Status(component) => component.scroll_bounds(),
             ComponentNode::Text(component) => component.scroll_bounds(),
-            ComponentNode::Gutter(component) => component.scroll_bounds(),
             ComponentNode::Debug(component) => component.scroll_bounds(),
+            ComponentNode::Component(component) => component.scroll_bounds(),
         }
     }
 
@@ -272,8 +303,10 @@ impl<'a> ComponentNode<'a> {
             ComponentNode::Frame(_) => (0, u16::MAX, 0, u16::MAX),
             ComponentNode::Status(component) => component.cursor_bounds(width, height, formatting),
             ComponentNode::Text(component) => component.cursor_bounds(width, height, formatting),
-            ComponentNode::Gutter(component) => component.cursor_bounds(width, height, formatting),
             ComponentNode::Debug(component) => component.cursor_bounds(width, height, formatting),
+            ComponentNode::Component(component) => {
+                component.cursor_bounds(width, height, formatting)
+            }
         }
     }
 
@@ -322,6 +355,8 @@ pub struct ComponentTree<'a> {
     last_cursor_row: Vec<u16>,
     /// cursor_initialized[i] tracks whether cursor has been set to minimum bounds for component i
     cursor_initialized: Vec<bool>,
+    /// cursor_style[i] is the display style for the cursor of component i
+    cursor_style: Vec<CursorStyle>,
 }
 
 impl<'a> ComponentTree<'a> {
@@ -346,6 +381,7 @@ impl<'a> ComponentTree<'a> {
             cursor_row: vec![0],
             last_cursor_row: vec![0],
             cursor_initialized: vec![false],
+            cursor_style: vec![CursorStyle::default()],
         }
     }
 
@@ -359,8 +395,8 @@ impl<'a> ComponentTree<'a> {
             ComponentNode::Frame(_) => Formatting::default(),
             ComponentNode::Status(component) => component.default_formatting(),
             ComponentNode::Text(component) => component.default_formatting(),
-            ComponentNode::Gutter(component) => component.default_formatting(),
             ComponentNode::Debug(component) => component.default_formatting(),
+            ComponentNode::Component(component) => component.default_formatting(),
         };
         self.add_child_with_formatting(parent_id, child, formatting)
     }
@@ -398,6 +434,7 @@ impl<'a> ComponentTree<'a> {
         self.cursor_row.push(0);
         self.last_cursor_row.push(0);
         self.cursor_initialized.push(false);
+        self.cursor_style.push(CursorStyle::default());
 
         // Mark as dirty so it renders on first frame (but not Frames, which shouldn't clear)
         if !is_frame {
@@ -421,8 +458,8 @@ impl<'a> ComponentTree<'a> {
             Some(ComponentNode::Frame(_)) => vec![],
             Some(ComponentNode::Status(component)) => component.child_nodes(),
             Some(ComponentNode::Text(component)) => component.child_nodes(),
-            Some(ComponentNode::Gutter(component)) => component.child_nodes(),
             Some(ComponentNode::Debug(component)) => component.child_nodes(),
+            Some(ComponentNode::Component(component)) => component.child_nodes(),
             None => vec![],
         };
 
@@ -774,6 +811,7 @@ impl<'a> ComponentTree<'a> {
 
         // Show cursor if we found one
         if let Some((x, y)) = self.cursor_pos {
+            stdout.execute(self.cursor_style[self.focus].to_command())?;
             stdout.execute(MoveTo(x, y))?;
             stdout.execute(Show)?;
         }

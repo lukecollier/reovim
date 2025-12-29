@@ -2,7 +2,9 @@ use std::cell::Cell;
 
 use crate::{
     event::ReovimEvent,
-    tui::{Component, Formatting, Measurement, Overflow, terminal_buffer::TerminalBuffer},
+    tui::{
+        Component, CursorStyle, Formatting, Measurement, Overflow, terminal_buffer::TerminalBuffer,
+    },
 };
 
 use anyhow::Result;
@@ -10,7 +12,13 @@ use crossterm::{
     event::{KeyCode, KeyEvent, MouseButton, MouseEvent, MouseEventKind},
     style::Color,
 };
+use tracing::debug;
 use unicode_width::{UnicodeWidthChar, UnicodeWidthStr};
+
+enum TextMode {
+    Insert,
+    Normal,
+}
 
 enum VcsStatus {
     Add,
@@ -30,55 +38,53 @@ impl VcsStatus {
     }
 }
 
-enum Line<'a> {
-    Multi {
-        line_number: u16,
-        vcs_status: VcsStatus,
-        content: Vec<&'a str>,
-        selected: bool,
-    },
-    Single {
-        line_number: u16,
-        vcs_status: VcsStatus,
-        content: &'a str,
-        selected: bool,
-    },
+pub enum Content {
+    Multi(Vec<String>),
+    Single(String),
 }
 
-impl<'a> Line<'a> {
-    fn new(line_number: u16, content: &'a str, row_size: u16, gutter_width: u16) -> Line<'a> {
+struct Line {
+    line_number: u16,
+    vcs_status: VcsStatus,
+    selected: bool,
+    content: Content,
+}
+
+impl Line {
+    fn new(line_number: u16, content: &str, row_size: u16, gutter_width: u16) -> Line {
         if (content.width() as u16 + gutter_width) > row_size {
-            let row = split_by_width(content, row_size - gutter_width);
-            Line::Multi {
+            let row = split_by_width(content, row_size - gutter_width)
+                .iter()
+                .map(|str| str.to_string())
+                .collect();
+            let multi = Content::Multi(row);
+            Self {
                 line_number,
                 vcs_status: VcsStatus::None,
-                content: row,
+                content: multi,
                 selected: false,
             }
         } else {
-            Line::Single {
+            Self {
                 line_number,
                 vcs_status: VcsStatus::None,
-                content,
+                content: Content::Single(content.to_string()),
                 selected: false,
             }
         }
     }
 
+    fn content_string(&self) -> String {
+        match &self.content {
+            Content::Multi(items) => items.join(""),
+            Content::Single(item) => item.to_string(),
+        }
+    }
+
     fn height(&self) -> u16 {
-        match self {
-            Line::Multi {
-                line_number: _,
-                vcs_status: _,
-                content,
-                selected: _,
-            } => content.len() as u16,
-            Line::Single {
-                line_number: _,
-                vcs_status: _,
-                content: _,
-                selected: _,
-            } => 1,
+        match &self.content {
+            Content::Multi(content) => content.len() as u16,
+            Content::Single(_) => 1,
         }
     }
 
@@ -89,14 +95,9 @@ impl<'a> Line<'a> {
         skip_lines: u16,
         max_rows: u16,
     ) -> u16 {
-        match self {
-            Line::Multi {
-                line_number,
-                vcs_status,
-                content,
-                selected,
-            } => {
-                let foreground_color = if *selected {
+        match &self.content {
+            Content::Multi(content) => {
+                let foreground_color = if self.selected {
                     Color::DarkYellow
                 } else {
                     Color::DarkGrey
@@ -116,12 +117,12 @@ impl<'a> Line<'a> {
                         // First line of multi-line
                         buffer
                             .set_background(Color::Reset)
-                            .set_foreground(vcs_status.color())
+                            .set_foreground(self.vcs_status.color())
                             .write(&"│")
                             .set_background(Color::Reset)
                             .set_foreground(foreground_color)
                             .write(&pad_or_truncate(
-                                &line_number.to_string(),
+                                &self.line_number.to_string(),
                                 gutter_size.saturating_sub(2),
                             ))
                             .set_background(Color::Reset)
@@ -142,26 +143,21 @@ impl<'a> Line<'a> {
                 }
                 rendered
             }
-            Line::Single {
-                line_number,
-                vcs_status,
-                content,
-                selected,
-            } => {
+            Content::Single(content) => {
                 if skip_lines == 0 && max_rows > 0 {
-                    let foreground_color = if *selected {
+                    let foreground_color = if self.selected {
                         Color::DarkYellow
                     } else {
                         Color::DarkGrey
                     };
                     buffer
                         .set_background(Color::Reset)
-                        .set_foreground(vcs_status.color())
+                        .set_foreground(self.vcs_status.color())
                         .write(&"│")
                         .set_background(Color::Reset)
                         .set_foreground(foreground_color)
                         .write(&pad_or_truncate(
-                            &line_number.to_string(),
+                            &self.line_number.to_string(),
                             gutter_size.saturating_sub(2),
                         ))
                         .set_background(Color::Reset)
@@ -179,8 +175,9 @@ impl<'a> Line<'a> {
 }
 
 pub struct TextComponent<'a> {
+    mode: TextMode,
     content: &'a str,
-    lines: Vec<Line<'a>>,
+    lines: Vec<Line>,
     show_gutter: bool,
     last_cursor_row: Cell<u16>,
 }
@@ -194,6 +191,7 @@ impl<'a> TextComponent<'a> {
             .collect();
         // we need to figure out the lines here
         TextComponent {
+            mode: TextMode::Normal,
             content,
             lines,
             show_gutter: true,
@@ -201,12 +199,28 @@ impl<'a> TextComponent<'a> {
         }
     }
 
+    fn get_end_of_line_offset(&self) -> u16 {
+        match self.mode {
+            TextMode::Insert => 0,
+            TextMode::Normal => 1,
+        }
+    }
+
+    fn is_normal(&self) -> bool {
+        matches!(self.mode, TextMode::Normal)
+    }
+
+    fn is_insert(&self) -> bool {
+        matches!(self.mode, TextMode::Insert)
+    }
+
     fn update_lines(&mut self, max_width: u16) {
         let lines: Vec<_> = self
-            .content
-            .lines()
+            .lines
+            .iter()
+            .map(|line| line.content_string())
             .enumerate()
-            .map(|(idx, str)| Line::new(idx as u16 + 1, str, max_width, 5))
+            .map(|(idx, str)| Line::new(idx as u16 + 1, &str, max_width, 5))
             .collect();
         self.lines = lines;
     }
@@ -255,6 +269,62 @@ impl<'a> TextComponent<'a> {
         }
         let line_number_width = self.lines.len().to_string().width() as u16;
         line_number_width + 2 // +1 for divider, +1 for space
+    }
+
+    pub fn get_line_mut(&mut self, row: u16) -> Option<&mut String> {
+        let mut pos = 0u16;
+
+        for line in self.lines.iter_mut() {
+            let line_height = line.height();
+
+            // Check if row falls within this line
+            if row >= pos && row < pos + line_height {
+                match line.content {
+                    Content::Single(ref mut content) => {
+                        return Some(content);
+                    }
+                    Content::Multi(ref mut content) => {
+                        // Calculate offset within the multi-line content
+                        let offset = (row - pos) as usize;
+                        return content.get_mut(offset);
+                    }
+                }
+            }
+
+            pos += line_height;
+        }
+
+        None
+    }
+
+    /// Get the content string at the given row number
+    /// For single-line entries, returns the entire line content
+    /// For multi-line (wrapped) entries, returns the specific wrapped segment
+    /// Returns None if the row is out of bounds
+    pub fn get_line(&'a self, row: u16) -> Option<&'a str> {
+        let mut pos = 0u16;
+
+        for line in &self.lines {
+            let line_height = line.height();
+
+            // Check if row falls within this line
+            if row >= pos && row < pos + line_height {
+                match &line.content {
+                    Content::Single(content) => {
+                        return Some(content.as_ref());
+                    }
+                    Content::Multi(content) => {
+                        // Calculate offset within the multi-line content
+                        let offset = (row - pos) as usize;
+                        return content.get(offset).map(|string| string.as_ref());
+                    }
+                }
+            }
+
+            pos += line_height;
+        }
+
+        None
     }
 }
 
@@ -320,7 +390,13 @@ impl<'a> Component for TextComponent<'a> {
                     row,
                     modifiers: _,
                 }) => {
-                    let (local_col, local_row) = commands.global_to_local(column, row);
+                    let (mut local_col, local_row) = commands.global_to_local(column, row);
+                    if let Some(contents) = self.get_line(local_row) {
+                        local_col = local_col.min(
+                            (contents.width() as u16 + self.gutter_width())
+                                .saturating_sub(self.get_end_of_line_offset()),
+                        );
+                    }
                     commands.set_cursor(local_col, local_row);
                 }
 
@@ -329,39 +405,94 @@ impl<'a> Component for TextComponent<'a> {
                     return Ok(true); // Component changed, needs re-render
                 }
                 ReovimEvent::Key(KeyEvent {
-                    code: KeyCode::Char('l'),
+                    code,
                     modifiers: _,
                     kind: _,
                     state: _,
-                }) => {
+                }) if self.is_insert() => match code {
+                    KeyCode::Esc => {
+                        commands.move_cursor(-1, 0);
+                        commands.set_cursor_style(CursorStyle::Block);
+                        self.mode = TextMode::Normal
+                    }
+                    KeyCode::Backspace => {
+                        let cursor = commands.get_cursor();
+                        let gutter_width = self.gutter_width();
+                        if cursor.col != gutter_width {
+                            if let Some(contents) =
+                                self.get_line_mut(cursor.row + commands.get_scroll_y() as u16)
+                            {
+                                contents.remove((cursor.col - gutter_width) as usize);
+                            }
+                            commands.move_cursor(-1, 0);
+                            return Ok(true);
+                        }
+                    }
+                    KeyCode::Char(character) => {
+                        let cursor = commands.get_cursor();
+                        let gutter_width = self.gutter_width();
+                        if let Some(contents) =
+                            self.get_line_mut(cursor.row + commands.get_scroll_y() as u16)
+                        {
+                            contents.insert((cursor.col - gutter_width) as usize, character);
+                        }
+                        commands.move_cursor(1, 0);
+                        return Ok(true);
+                    }
+                    _ => {}
+                },
+                ReovimEvent::Key(KeyEvent {
+                    code: KeyCode::Char('a'),
+                    modifiers: _,
+                    kind: _,
+                    state: _,
+                }) if self.is_normal() => {
                     commands.move_cursor(1, 0);
-                    return Ok(true); // Component changed, needs re-render
+                    commands.set_cursor_style(CursorStyle::Line);
+                    self.mode = TextMode::Insert
                 }
                 ReovimEvent::Key(KeyEvent {
-                    code: KeyCode::Char('h'),
+                    code: KeyCode::Char('i'),
                     modifiers: _,
                     kind: _,
                     state: _,
-                }) => {
-                    commands.move_cursor(-1, 0);
-                    return Ok(true); // Component changed, needs re-render
+                }) if self.is_normal() => {
+                    commands.set_cursor_style(CursorStyle::Line);
+                    self.mode = TextMode::Insert
                 }
+                // vi motions
                 ReovimEvent::Key(KeyEvent {
-                    code: KeyCode::Char('j'),
+                    code,
                     modifiers: _,
                     kind: _,
                     state: _,
-                }) => {
-                    commands.move_cursor(0, 1);
-                    return Ok(true); // Component changed, needs re-render
-                }
-                ReovimEvent::Key(KeyEvent {
-                    code: KeyCode::Char('k'),
-                    modifiers: _,
-                    kind: _,
-                    state: _,
-                }) => {
-                    commands.move_cursor(0, -1);
+                }) if self.is_normal() => {
+                    match code {
+                        KeyCode::Char('l') => {
+                            commands.move_cursor(1, 0);
+                        }
+                        KeyCode::Char('h') => {
+                            commands.move_cursor(-1, 0);
+                        }
+                        KeyCode::Char('j') => {
+                            commands.move_cursor(0, 1);
+                        }
+                        KeyCode::Char('k') => {
+                            commands.move_cursor(0, -1);
+                        }
+                        _ => return Ok(false),
+                    }
+                    let cursor = commands.get_cursor();
+                    if let Some(contents) =
+                        self.get_line(cursor.row + commands.get_scroll_y() as u16)
+                    {
+                        commands.clamp_cursor_col(
+                            self.gutter_width(),
+                            (contents.width() as u16 + self.gutter_width())
+                                .saturating_sub(self.get_end_of_line_offset()),
+                        );
+                    }
+
                     return Ok(true); // Component changed, needs re-render
                 }
                 _ => {}

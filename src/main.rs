@@ -11,10 +11,10 @@ use std::{
 use anyhow::Result;
 use crossterm::{
     ExecutableCommand,
-    event::{DisableMouseCapture, EnableMouseCapture},
+    event::{DisableMouseCapture, EnableMouseCapture, KeyModifiers},
     terminal::{self, EnterAlternateScreen, LeaveAlternateScreen},
 };
-use tracing::info;
+use tracing::{debug, info};
 use tracing_subscriber::EnvFilter;
 
 use crate::tui::{
@@ -198,10 +198,10 @@ impl Buffer {
                 crossterm::event::Event::FocusGained => {}
                 crossterm::event::Event::FocusLost => {}
                 crossterm::event::Event::Key(key_event) => {
-                    tree.update(event::ReovimEvent::Key(key_event))?;
-                    if key_event.code.is_esc() {
+                    if key_event.code.is_char('u') && key_event.modifiers == KeyModifiers::CONTROL {
                         break;
                     }
+                    tree.update(event::ReovimEvent::Key(key_event))?;
                 }
                 crossterm::event::Event::Mouse(mouse_event) => {
                     tree.update(event::ReovimEvent::Mouse(mouse_event))?

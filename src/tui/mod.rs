@@ -1,14 +1,37 @@
 use anyhow::Result;
+use crossterm::cursor::SetCursorStyle;
 
 use crate::event::ReovimEvent;
 
 pub mod command;
 pub mod debug;
-pub mod gutter;
 pub mod status;
 pub mod terminal_buffer;
 pub mod text;
 pub mod tree;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum CursorStyle {
+    Block,
+    Line,
+    Underline,
+}
+
+impl CursorStyle {
+    fn to_command(self) -> SetCursorStyle {
+        match self {
+            CursorStyle::Block => SetCursorStyle::SteadyBlock,
+            CursorStyle::Line => SetCursorStyle::SteadyBar,
+            CursorStyle::Underline => SetCursorStyle::SteadyUnderScore,
+        }
+    }
+}
+
+impl Default for CursorStyle {
+    fn default() -> Self {
+        CursorStyle::Block
+    }
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Cursor {
@@ -17,6 +40,9 @@ pub struct Cursor {
 }
 
 impl Cursor {
+    fn from_xy(row: u16, col: u16) -> Cursor {
+        Cursor { row, col }
+    }
     fn new() -> Cursor {
         Cursor { row: 0, col: 0 }
     }
@@ -42,10 +68,7 @@ impl Rect {
 
     /// Check if the given column and row are within this rect's bounds
     pub fn contains(&self, col: u16, row: u16) -> bool {
-        col >= self.x
-            && col < self.x + self.width
-            && row >= self.y
-            && row < self.y + self.height
+        col >= self.x && col < self.x + self.width && row >= self.y && row < self.y + self.height
     }
 }
 
@@ -143,7 +166,12 @@ pub trait Component {
 
     /// Return the cursor bounds allowed for this component
     /// (min_col, max_col, min_row, max_row)
-    fn cursor_bounds(&self, width: u16, height: u16, _formatting: &Formatting) -> (u16, u16, u16, u16) {
+    fn cursor_bounds(
+        &self,
+        width: u16,
+        height: u16,
+        _formatting: &Formatting,
+    ) -> (u16, u16, u16, u16) {
         (0, width, 0, height)
     }
 

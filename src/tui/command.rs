@@ -7,7 +7,7 @@ pub struct CommandComponent {
     command: String,
 }
 
-impl Component for CommandComponent {
+impl<'a> Component for CommandComponent {
     fn render(&self, _buffer: &mut TerminalBuffer) -> Result<()> {
         Ok(())
     }
