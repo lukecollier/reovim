@@ -14,14 +14,12 @@ use crossterm::{
     event::{DisableMouseCapture, EnableMouseCapture, KeyModifiers},
     terminal::{self, EnterAlternateScreen, LeaveAlternateScreen},
 };
-use tracing::{debug, info};
+use tracing::info;
 use tracing_subscriber::EnvFilter;
 
 use crate::tui::{
-    Formatting, Measurement,
-    status::StatusComponent,
-    text::TextComponent,
-    tree::{ComponentNode, ComponentTree, Frame, LayoutMode},
+    editor::Editor,
+    tree::ComponentTree,
 };
 
 fn main() -> Result<()> {
@@ -121,7 +119,6 @@ struct Buffer {
     file_path: Option<PathBuf>,
     contents: String,
     dimensions: (u16, u16),
-    render_range: Range<usize>,
 }
 
 impl Default for Buffer {
@@ -129,7 +126,6 @@ impl Default for Buffer {
         Self {
             contents: String::new(),
             dimensions: Default::default(),
-            render_range: Default::default(),
             file_path: Default::default(),
         }
     }
@@ -154,11 +150,9 @@ impl Buffer {
             ..Default::default()
         })
     }
-
     fn run(&mut self) -> Result<()> {
         let mut stdout = stdout();
         self.dimensions = crossterm::terminal::size()?;
-        self.render_range = 0..self.dimensions.1.saturating_sub(2) as usize;
 
         let file_name = self
             .file_path
@@ -167,28 +161,19 @@ impl Buffer {
             .and_then(|os_string| os_string.to_str())
             .unwrap_or("[no file]");
 
-        let root_frame = Frame::new(LayoutMode::VerticalSplit);
-        let mut tree = ComponentTree::new(tui::tree::ComponentNode::Frame(root_frame));
-        let editor_frame = Frame::new(LayoutMode::HorizontalSplit);
-        let editor_formatting = Formatting {
-            preferred_width: Measurement::Percent(100),
-            preferred_height: Measurement::Fill, // Leave room for status line
-            ..Formatting::default()
-        };
-        let editor_frame_id = tree.add_child_with_formatting(
-            0,
-            tui::tree::ComponentNode::Frame(editor_frame),
-            editor_formatting,
-        )?;
-        let text = TextComponent::new(&self.contents, self.dimensions.0);
-        tree.add_child(editor_frame_id, ComponentNode::Text(text))?;
+        let editor_component = Editor::new(self.contents.to_string(), file_name);
+        let mut tree = ComponentTree::new(tui::tree::ComponentNode::Component(Box::new(
+            editor_component,
+        )));
 
-        let status_line = StatusComponent::new(file_name);
-        tree.add_child(0, ComponentNode::Status(status_line))?;
+        // Initialize children for all components before first render
+        tree.initialize_pending_components()?;
+        tree.layout(self.dimensions.0, self.dimensions.1);
+        tree.mark_all_dirty();
+        tree.render(&mut stdout)?;
 
         loop {
             self.dimensions = crossterm::terminal::size()?;
-            tree.layout(self.dimensions.0, self.dimensions.1);
             tree.render(&mut stdout)?;
             stdout.flush()?;
 
@@ -208,10 +193,81 @@ impl Buffer {
                 }
                 crossterm::event::Event::Paste(_) => {}
                 crossterm::event::Event::Resize(x, y) => {
-                    tree.update(event::ReovimEvent::Resize(x, y))?
+                    // Update dimensions first
+                    self.dimensions = (x, y);
+                    // Then re-layout with new dimensions (this triggers measurement of Content components)
+                    tree.layout(self.dimensions.0, self.dimensions.1);
+                    // Mark all components dirty to force re-render with new layout
+                    tree.mark_all_dirty();
+                    // Then handle the resize event
+                    tree.update(event::ReovimEvent::Resize(x, y))?;
+                    // Finally render
+                    tree.render(&mut stdout)?;
+                    stdout.flush()?;
                 }
             }
         }
         Ok(())
     }
+
+    // old run
+    // fn run(&mut self) -> Result<()> {
+    //     let mut stdout = stdout();
+    //     self.dimensions = crossterm::terminal::size()?;
+    //     self.render_range = 0..self.dimensions.1.saturating_sub(2) as usize;
+
+    //     let file_name = self
+    //         .file_path
+    //         .as_ref()
+    //         .and_then(|path| path.file_name())
+    //         .and_then(|os_string| os_string.to_str())
+    //         .unwrap_or("[no file]");
+
+    //     let root_frame = Frame::new(LayoutMode::VerticalSplit);
+    //     let mut tree = ComponentTree::new(tui::tree::ComponentNode::Frame(root_frame));
+    //     let editor_frame = Frame::new(LayoutMode::HorizontalSplit);
+    //     let editor_formatting = Formatting {
+    //         preferred_width: Measurement::Percent(100),
+    //         preferred_height: Measurement::Fill, // Leave room for status line
+    //         ..Formatting::default()
+    //     };
+    //     let editor_frame_id = tree.add_child_with_formatting(
+    //         0,
+    //         tui::tree::ComponentNode::Frame(editor_frame),
+    //         editor_formatting,
+    //     )?;
+    //     let text = TextComponent::new(&self.contents, self.dimensions.0);
+    //     tree.add_child(editor_frame_id, ComponentNode::Text(text))?;
+
+    //     let status_line = StatusComponent::new(file_name);
+    //     tree.add_child(0, ComponentNode::Status(status_line))?;
+
+    //     loop {
+    //         self.dimensions = crossterm::terminal::size()?;
+    //         tree.layout(self.dimensions.0, self.dimensions.1);
+    //         tree.render(&mut stdout)?;
+    //         stdout.flush()?;
+
+    //         let crossterm_event = crossterm::event::read().expect("failed to read event");
+    //         // nowe we handle them events
+    //         match crossterm_event {
+    //             crossterm::event::Event::FocusGained => {}
+    //             crossterm::event::Event::FocusLost => {}
+    //             crossterm::event::Event::Key(key_event) => {
+    //                 if key_event.code.is_char('u') && key_event.modifiers == KeyModifiers::CONTROL {
+    //                     break;
+    //                 }
+    //                 tree.update(event::ReovimEvent::Key(key_event))?;
+    //             }
+    //             crossterm::event::Event::Mouse(mouse_event) => {
+    //                 tree.update(event::ReovimEvent::Mouse(mouse_event))?
+    //             }
+    //             crossterm::event::Event::Paste(_) => {}
+    //             crossterm::event::Event::Resize(x, y) => {
+    //                 tree.update(event::ReovimEvent::Resize(x, y))?
+    //             }
+    //         }
+    //     }
+    //     Ok(())
+    // }
 }

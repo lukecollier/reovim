@@ -5,10 +5,17 @@ use crate::event::ReovimEvent;
 
 pub mod command;
 pub mod debug;
+pub mod editor;
 pub mod status;
 pub mod terminal_buffer;
 pub mod text;
 pub mod tree;
+
+#[derive(Debug, Clone, Copy)]
+pub enum LayoutMode {
+    VerticalSplit,
+    HorizontalSplit,
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CursorStyle {
@@ -72,12 +79,6 @@ impl Rect {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
-pub struct Constraints {
-    pub max_width: u16,
-    pub max_height: u16,
-}
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Overflow {
     /// Sends new text to the next line after the overflow
@@ -94,6 +95,8 @@ pub enum Measurement {
     Cell(usize),
     /// Percentage of available space
     Percent(u8),
+    /// Size based on rendered content
+    Content,
     Fill,
 }
 
@@ -112,6 +115,8 @@ pub struct Formatting {
     pub overflow_x: Overflow,
     pub overflow_y: Overflow,
     pub request_focus: bool,
+    pub layout_mode: LayoutMode,
+    pub focusable: bool,
 }
 
 impl Default for Formatting {
@@ -124,13 +129,17 @@ impl Default for Formatting {
             overflow_x: Overflow::Hide,
             overflow_y: Overflow::Hide,
             request_focus: false,
+            layout_mode: LayoutMode::VerticalSplit,
+            focusable: true,
         }
     }
 }
 
 pub trait Component {
     /// Render the component to the given terminal buffer
-    fn render(&self, buffer: &mut terminal_buffer::TerminalBuffer) -> Result<()>;
+    fn render(&self, _buffer: &mut terminal_buffer::TerminalBuffer) -> Result<()> {
+        Ok(())
+    }
 
     /// Handle an event with controlled access to the component tree
     ///
@@ -158,12 +167,6 @@ pub trait Component {
         Ok(false)
     }
 
-    /// Return the minimum and maximum scroll offsets allowed for this component
-    /// (min_scroll, max_scroll)
-    fn scroll_bounds(&self) -> (usize, usize) {
-        (0, usize::MAX)
-    }
-
     /// Return the cursor bounds allowed for this component
     /// (min_col, max_col, min_row, max_row)
     fn cursor_bounds(
@@ -172,7 +175,7 @@ pub trait Component {
         height: u16,
         _formatting: &Formatting,
     ) -> (u16, u16, u16, u16) {
-        (0, width, 0, height)
+        (0, width.saturating_sub(1), 0, height.saturating_sub(1))
     }
 
     /// Provide default formatting for this component
@@ -180,18 +183,10 @@ pub trait Component {
         Formatting::default()
     }
 
-    /// Return child nodes to be automatically added when this component is added to the tree
-    ///
-    /// # Example
-    /// ```ignore
-    /// fn child_nodes(&self) -> Vec<tree::ComponentNode<'static>> {
-    ///     vec![
-    ///         tree::ComponentNode::Status(StatusComponent::new("child1")),
-    ///         tree::ComponentNode::Status(StatusComponent::new("child2")),
-    ///     ]
-    /// }
-    /// ```
-    fn child_nodes(&self) -> Vec<tree::ComponentNode<'static>> {
-        vec![]
+    /// Initialize child components for this component
+    /// Called after the component is added to the tree, allows the component to add children
+    /// through the provided ComponentCommands
+    fn children(&mut self, _commands: &mut tree::ComponentCommands) -> Result<()> {
+        Ok(())
     }
 }

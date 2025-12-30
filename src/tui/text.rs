@@ -3,7 +3,8 @@ use std::cell::Cell;
 use crate::{
     event::ReovimEvent,
     tui::{
-        Component, CursorStyle, Formatting, Measurement, Overflow, terminal_buffer::TerminalBuffer,
+        Component, CursorStyle, Formatting, LayoutMode, Measurement, Overflow,
+        terminal_buffer::TerminalBuffer,
     },
 };
 
@@ -12,7 +13,6 @@ use crossterm::{
     event::{KeyCode, KeyEvent, MouseButton, MouseEvent, MouseEventKind},
     style::Color,
 };
-use tracing::debug;
 use unicode_width::{UnicodeWidthChar, UnicodeWidthStr};
 
 enum TextMode {
@@ -501,21 +501,6 @@ impl<'a> Component for TextComponent<'a> {
         Ok(false) // No changes
     }
 
-    fn scroll_bounds(&self) -> (usize, usize) {
-        // Calculate total content height across all lines
-        let total_height = self
-            .lines
-            .iter()
-            .fold(0u16, |acc, line| acc + line.height());
-
-        let sub_by = self.lines.last().map(|line| line.height()).unwrap_or(0);
-
-        // Max scroll should allow content to fill the viewport
-        // max_scroll = total_height - viewport_height, ensuring last content reaches bottom
-        let max_scroll = (total_height.max(0) as usize).saturating_sub(sub_by as usize);
-        (0, max_scroll)
-    }
-
     fn cursor_bounds(
         &self,
         width: u16,
@@ -558,6 +543,8 @@ impl<'a> Component for TextComponent<'a> {
             overflow_x: Overflow::Hide,
             overflow_y: Overflow::Scroll,
             request_focus: true,
+            layout_mode: LayoutMode::VerticalSplit,
+            focusable: true,
         }
     }
 }

@@ -124,4 +124,42 @@ impl TerminalBuffer {
         self.has_focus = focused;
         self
     }
+
+    /// Measure the dimensions of rendered content
+    /// Returns (width, height) of the actual content, accounting for wrapping at buffer width
+    pub fn measure_content(&self) -> (u16, u16) {
+        let mut width = 0u16;
+        let mut height = 1u16;
+        let mut current_line_width = 0u16;
+
+        for cmd in &self.buffer {
+            match cmd {
+                TerminalCommand::Print(_) => {
+                    current_line_width += 1;
+
+                    // Account for wrapping at buffer width
+                    if current_line_width > self.width {
+                        // Wrapped to next line
+                        current_line_width = 1;
+                        height += 1;
+                    }
+
+                    // Track the actual content width, not the buffer width
+                    width = width.max(current_line_width);
+                }
+                TerminalCommand::Newline => {
+                    current_line_width = 0;
+                    height += 1;
+                }
+                _ => {}
+            }
+        }
+
+        // If there's no content, return (0, 0)
+        if self.buffer.is_empty() {
+            return (0, 0);
+        }
+
+        (width, height)
+    }
 }

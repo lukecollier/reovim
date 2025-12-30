@@ -1,21 +1,18 @@
-use crate::{
-    event::ReovimEvent,
-    tui::{Component, Formatting, Measurement, Overflow, terminal_buffer::TerminalBuffer},
+use crate::tui::{
+    Component, Formatting, LayoutMode, Measurement, Overflow, terminal_buffer::TerminalBuffer,
 };
 
 use anyhow::Result;
 use crossterm::style::Color;
 
-pub struct StatusComponent<'a> {
+pub struct StatusComponent {
     /// The file name for the bottom left.
-    file_name: &'a str,
+    file_name: String,
 }
 
-impl<'a> StatusComponent<'a> {
-    pub fn new(file_name: &'a str) -> Self {
-        StatusComponent {
-            file_name: file_name,
-        }
+impl StatusComponent {
+    pub fn new(file_name: String) -> Self {
+        StatusComponent { file_name }
     }
 }
 
@@ -27,26 +24,14 @@ fn pad_or_truncate(s: &str, width: u16) -> String {
     }
 }
 
-impl<'a> Component for StatusComponent<'a> {
+impl Component for StatusComponent {
     fn render(&self, buffer: &mut TerminalBuffer) -> Result<()> {
-        let status_line_str = pad_or_truncate(self.file_name, buffer.width());
+        let status_line_str = pad_or_truncate(&self.file_name, buffer.width());
         buffer
             .set_background(Color::Black)
             .set_foreground(Color::Yellow)
             .write(&status_line_str);
         Ok(())
-    }
-
-    fn update(
-        &mut self,
-        event: ReovimEvent,
-        _commands: &mut super::tree::ComponentCommands,
-    ) -> Result<bool> {
-        if matches!(event, ReovimEvent::Resize(_, _)) {
-            Ok(true)
-        } else {
-            Ok(false)
-        }
     }
 
     fn default_formatting(&self) -> Formatting {
@@ -58,6 +43,8 @@ impl<'a> Component for StatusComponent<'a> {
             overflow_x: Overflow::Hide,
             overflow_y: Overflow::Hide,
             request_focus: false,
+            layout_mode: LayoutMode::VerticalSplit,
+            focusable: false,
         }
     }
 }

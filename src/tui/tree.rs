@@ -3,22 +3,17 @@ use crate::tui::debug::DebugComponent;
 use crate::tui::status::StatusComponent;
 use crate::tui::terminal_buffer::{TerminalBuffer, TerminalCommand};
 use crate::tui::text::TextComponent;
-use crate::tui::{Component, Cursor, CursorStyle, Formatting, Measurement, Overflow, Rect};
+use crate::tui::{
+    Component, Cursor, CursorStyle, Formatting, LayoutMode, Measurement, Overflow, Rect,
+};
 use anyhow::Result;
 use crossterm::ExecutableCommand;
-use crossterm::cursor::{Hide, MoveTo, SetCursorStyle, Show};
+use crossterm::cursor::{Hide, MoveTo, Show};
 use crossterm::event::{MouseButton, MouseEventKind};
 use crossterm::style::{Print, ResetColor, SetBackgroundColor, SetForegroundColor};
 use std::io::Stdout;
-use tracing::debug;
 
 pub type ComponentId = usize;
-
-#[derive(Debug, Clone, Copy)]
-pub enum LayoutMode {
-    VerticalSplit,
-    HorizontalSplit,
-}
 
 /// Commands that a component can perform on the tree
 /// This provides a limited interface to prevent arbitrary tree mutations
@@ -33,7 +28,8 @@ impl<'a> ComponentCommands<'a> {
     }
 
     pub fn has_focus(&self) -> bool {
-        self.tree.focus == self.self_id
+        // A component has focus if it's in the focus path (including ancestors of the focused leaf)
+        self.tree.focus_path.contains(&self.self_id)
     }
 
     /// Get the IDs of this component's children
@@ -135,11 +131,15 @@ impl<'a> ComponentCommands<'a> {
             .get(self.self_id)
             .copied()
             .unwrap_or_default();
+
+        // Get full content bounds including children
+        let (content_width, content_height) = self.tree.get_content_bounds(self.self_id);
+
         let (min_col, max_col, min_row, max_row) = self
             .tree
             .components
             .get(self.self_id)
-            .map(|comp| comp.cursor_bounds(rect.width, rect.height, &formatting))
+            .map(|comp| comp.cursor_bounds(content_width, content_height, &formatting))
             .unwrap_or((0, u16::MAX, 0, u16::MAX));
 
         let clamped_col = col.max(min_col).min(max_col);
@@ -155,48 +155,349 @@ impl<'a> ComponentCommands<'a> {
     }
 
     /// Move cursor by the given offset (col_delta, row_delta)
+    /// Implements hierarchical navigation:
+    /// - In VerticalSplit: Up/Down = move between children, Left/Right = wrap within child
+    /// - In HorizontalSplit: Left/Right = move between children, Up/Down = wrap within child
     pub fn move_cursor(&mut self, col_delta: i32, row_delta: i32) {
-        // Get rect dimensions, formatting, and cursor bounds from the component
-        let rect = self
-            .tree
-            .rects
-            .get(self.self_id)
-            .copied()
-            .unwrap_or_default();
+        // If a deeper component is focused (this component is an ancestor),
+        // work with the deepest focused component instead
+        let current_id = if !self.tree.focus_path.is_empty() {
+            let deepest_focused = *self.tree.focus_path.last().unwrap();
+            if deepest_focused != self.self_id {
+                // Use the deepest focused component for movement
+                deepest_focused
+            } else {
+                self.self_id
+            }
+        } else {
+            self.self_id
+        };
         let formatting = self
             .tree
             .formatting
-            .get(self.self_id)
+            .get(current_id)
             .copied()
             .unwrap_or_default();
+
+        // For leaf components, measure actual content width; for containers, use full content bounds
+        let (content_width, content_height) = if self.tree.children(current_id).map_or(true, |c| c.is_empty()) {
+            // Leaf component - measure actual rendered content
+            self.tree.measure_component(current_id, u16::MAX, u16::MAX)
+        } else {
+            // Container with children - use full content bounds
+            self.tree.get_content_bounds(current_id)
+        };
+
+        // Get cursor bounds from the component
         let (min_col, max_col, min_row, max_row) = self
             .tree
             .components
-            .get(self.self_id)
-            .map(|comp| comp.cursor_bounds(rect.width, rect.height, &formatting))
+            .get(current_id)
+            .map(|comp| comp.cursor_bounds(content_width, content_height, &formatting))
             .unwrap_or((0, u16::MAX, 0, u16::MAX));
 
-        if let Some(col_slot) = self.tree.cursor_col.get_mut(self.self_id) {
-            let current_col = *col_slot;
+        // First, check if we can navigate within this component's children
+        let current_formatting = self
+            .tree
+            .formatting
+            .get(current_id)
+            .copied()
+            .unwrap_or_default();
+
+        let can_navigate_current_children = matches!(
+            (
+                current_formatting.layout_mode,
+                col_delta != 0,
+                row_delta != 0
+            ),
+            (LayoutMode::VerticalSplit, false, true) | // Up/Down in VerticalSplit
+            (LayoutMode::HorizontalSplit, true, false) // Left/Right in HorizontalSplit
+        ) && self
+            .tree
+            .children(current_id)
+            .map_or(false, |c| !c.is_empty());
+
+        if can_navigate_current_children {
+            // Navigate within current component's children
+            self.navigate_children(current_id, col_delta, row_delta);
+            return;
+        }
+
+        // Otherwise, check if we can navigate to siblings
+        let parent_id = self.tree.parent(current_id).and_then(|p| p);
+
+        if let Some(parent) = parent_id {
+            let parent_layout = self
+                .tree
+                .formatting
+                .get(parent)
+                .copied()
+                .unwrap_or_default()
+                .layout_mode;
+
+            let is_child_nav = matches!(
+                (parent_layout, col_delta != 0, row_delta != 0),
+                (LayoutMode::VerticalSplit, false, true) | // Up/Down in VerticalSplit
+                (LayoutMode::HorizontalSplit, true, false) // Left/Right in HorizontalSplit
+            );
+
+            if is_child_nav {
+                // Navigate between sibling children
+                self.navigate_siblings(parent, col_delta, row_delta);
+                return;
+            }
+        }
+
+        // Navigate within wrapped content of current component
+        self.navigate_within_component(
+            current_id, col_delta, row_delta, 0, min_col, max_col, min_row, max_row,
+        );
+    }
+
+    /// Navigate between children of the current component
+    fn navigate_children(&mut self, parent_id: ComponentId, col_delta: i32, row_delta: i32) {
+        if let Some(children) = self.tree.children(parent_id) {
+            if children.is_empty() {
+                return;
+            }
+
+            // Find current position in children by looking for the currently focused child
+            // Use the deepest focused child in the focus path that's a child of this parent
+            let mut current_pos: i32 = -1;
+            for focus_id in &self.tree.focus_path {
+                if let Some(pos) = children.iter().position(|&id| id == *focus_id) {
+                    current_pos = pos as i32;
+                    break; // Use the first (closest) one found
+                }
+            }
+
+            // Determine next child based on movement direction
+            let next_pos = if row_delta > 0 {
+                ((current_pos + 1).max(0) as usize).min(children.len() - 1)
+            } else if row_delta < 0 {
+                (current_pos - 1).max(0) as usize
+            } else if col_delta > 0 {
+                ((current_pos + 1).max(0) as usize).min(children.len() - 1)
+            } else if col_delta < 0 {
+                (current_pos - 1).max(0) as usize
+            } else {
+                return;
+            };
+
+            // Only move if position changed
+            if next_pos as i32 != current_pos {
+                let next_id = children[next_pos];
+
+                // Try to enter the next child and find the actual descendant to focus
+                if self.try_enter_component(next_id) {
+                    // Find the deepest focusable descendant to actually focus on
+                    let focus_id = self.find_focusable_descendant(next_id);
+
+                    // Update current focus and focus path
+                    let old_id = self.self_id;
+                    self.self_id = focus_id;
+                    self.tree.focus = focus_id;
+                    self.tree.focus_path = self.tree.build_focus_path(focus_id);
+                    self.tree.mark_dirty(focus_id);
+                    self.tree.mark_dirty(old_id);
+                }
+            }
+        }
+    }
+
+    /// Navigate between sibling components
+    fn navigate_siblings(&mut self, parent_id: ComponentId, col_delta: i32, row_delta: i32) {
+        if let Some(siblings) = self.tree.children(parent_id) {
+            if siblings.is_empty() {
+                return;
+            }
+
+            // Find current position in siblings by looking for the currently focused sibling
+            // Use the focused sibling from the focus path
+            let mut current_pos = 0;
+            for focus_id in &self.tree.focus_path {
+                if let Some(pos) = siblings.iter().position(|&id| id == *focus_id) {
+                    current_pos = pos;
+                    break; // Use the first (closest) one found
+                }
+            }
+
+            // Determine next sibling based on movement direction
+            let next_pos = if row_delta > 0 {
+                (current_pos + 1).min(siblings.len() - 1)
+            } else if row_delta < 0 {
+                current_pos.saturating_sub(1)
+            } else if col_delta > 0 {
+                (current_pos + 1).min(siblings.len() - 1)
+            } else if col_delta < 0 {
+                current_pos.saturating_sub(1)
+            } else {
+                return;
+            };
+
+            // Only move if position changed
+            if next_pos != current_pos {
+                let next_id = siblings[next_pos];
+
+                // Try to enter the next component and find the actual descendant to focus
+                if self.try_enter_component(next_id) {
+                    // Find the deepest focusable descendant to actually focus on
+                    let focus_id = self.find_focusable_descendant(next_id);
+
+                    // Update current focus and focus path
+                    self.self_id = focus_id;
+                    self.tree.focus = focus_id;
+                    self.tree.focus_path = self.tree.build_focus_path(focus_id);
+                    self.tree.mark_dirty(focus_id);
+                    self.tree.mark_dirty(siblings[current_pos]);
+                }
+            }
+        }
+    }
+
+    /// Try to enter a component, descending into focusable descendants if needed
+    fn try_enter_component(&self, component_id: ComponentId) -> bool {
+        let formatting = self
+            .tree
+            .formatting
+            .get(component_id)
+            .copied()
+            .unwrap_or_default();
+
+        if formatting.focusable {
+            return true;
+        }
+
+        // If not focusable, try to find a focusable child
+        if let Some(children) = self.tree.children(component_id) {
+            for &child_id in &children {
+                if self.try_enter_component(child_id) {
+                    return true;
+                }
+            }
+        }
+
+        false
+    }
+
+    /// Find the actual descendant component to focus when entering a component
+    /// If the component is focusable with focusable children, returns the first focusable child's descendant
+    /// If the component is focusable with no focusable children, returns the component itself
+    fn find_focusable_descendant(&self, component_id: ComponentId) -> ComponentId {
+        let formatting = self
+            .tree
+            .formatting
+            .get(component_id)
+            .copied()
+            .unwrap_or_default();
+
+        // If this component is focusable, check if it has focusable children to descend into
+        if formatting.focusable {
+            if let Some(children) = self.tree.children(component_id) {
+                // Try to find the first focusable child
+                for &child_id in &children {
+                    if self.try_enter_component(child_id) {
+                        // Recursively find the deepest focusable descendant of this child
+                        return self.find_focusable_descendant(child_id);
+                    }
+                }
+            }
+            // No focusable children, return this component
+            return component_id;
+        }
+
+        // If not focusable, try to find a focusable descendant
+        if let Some(children) = self.tree.children(component_id) {
+            for &child_id in &children {
+                if self.try_enter_component(child_id) {
+                    return self.find_focusable_descendant(child_id);
+                }
+            }
+        }
+
+        // Shouldn't reach here if try_enter_component was already called
+        component_id
+    }
+
+    /// Navigate within a component's wrapped content
+    fn navigate_within_component(
+        &mut self,
+        component_id: ComponentId,
+        col_delta: i32,
+        row_delta: i32,
+        _child_width: u16,
+        min_col: u16,
+        max_col: u16,
+        min_row: u16,
+        max_row: u16,
+    ) {
+        let current_col = self.tree.cursor_col.get(component_id).copied().unwrap_or(0);
+        let current_row = self.tree.cursor_row.get(component_id).copied().unwrap_or(0);
+
+        if col_delta != 0 {
+            // Measure actual content width of the leaf component without width constraints
+            // This gives us the true content width, not constrained by parent allocation
+            let (content_width, _) = self.tree.measure_component(component_id, u16::MAX, u16::MAX);
+            let clamped_max_col = (content_width as u16).saturating_sub(1).max(min_col);
+            let effective_max_col = max_col.min(clamped_max_col);
+
+            // Horizontal movement within wrapped content
             let new_col = if col_delta < 0 {
                 current_col.saturating_sub((-col_delta) as u16)
             } else {
                 current_col.saturating_add(col_delta as u16)
             };
-            *col_slot = new_col.max(min_col).min(max_col);
+
+            // Check if we're trying to move beyond content bounds
+            let trying_to_move_right_beyond = col_delta > 0 && new_col > effective_max_col;
+            let trying_to_move_left_beyond = col_delta < 0 && current_col == min_col;
+
+            // Try to wrap to next/previous line if applicable
+            let wrapped = if trying_to_move_right_beyond && current_row < max_row {
+                // Can wrap to next line
+                if let Some(col_slot) = self.tree.cursor_col.get_mut(component_id) {
+                    *col_slot = min_col;
+                }
+                if let Some(row_slot) = self.tree.cursor_row.get_mut(component_id) {
+                    *row_slot = current_row + 1;
+                }
+                true
+            } else if trying_to_move_left_beyond && current_row > min_row {
+                // Can wrap to previous line
+                if let Some(col_slot) = self.tree.cursor_col.get_mut(component_id) {
+                    *col_slot = effective_max_col;
+                }
+                if let Some(row_slot) = self.tree.cursor_row.get_mut(component_id) {
+                    *row_slot = current_row - 1;
+                }
+                true
+            } else {
+                false
+            };
+
+            // If we didn't wrap, clamp the cursor to content bounds
+            if !wrapped {
+                let clamped_col = new_col.max(min_col).min(effective_max_col);
+                if let Some(col_slot) = self.tree.cursor_col.get_mut(component_id) {
+                    *col_slot = clamped_col;
+                }
+            }
         }
 
-        if let Some(row_slot) = self.tree.cursor_row.get_mut(self.self_id) {
-            let current_row = *row_slot;
+        if row_delta != 0 {
+            // Vertical movement within wrapped content
             let new_row = if row_delta < 0 {
                 current_row.saturating_sub((-row_delta) as u16)
             } else {
                 current_row.saturating_add(row_delta as u16)
             };
-            *row_slot = new_row.max(min_row).min(max_row);
+
+            if let Some(row_slot) = self.tree.cursor_row.get_mut(component_id) {
+                *row_slot = new_row.max(min_row).min(max_row);
+            }
         }
 
-        self.tree.mark_dirty(self.self_id);
+        self.tree.mark_dirty(component_id);
     }
 
     /// Get the cursor position, accounting for scroll offset (returns localized coordinates)
@@ -228,27 +529,44 @@ impl<'a> ComponentCommands<'a> {
             .copied()
             .unwrap_or_default()
     }
+
+    /// Add a child component with default formatting
+    pub fn add_child(&mut self, child: ComponentNode<'a>) -> Result<ComponentId> {
+        self.tree.add_child(self.self_id, child)
+    }
+
+    /// Add a child component with custom formatting
+    pub fn add_child_with_formatting(
+        &mut self,
+        child: ComponentNode<'a>,
+        formatting: Formatting,
+    ) -> Result<ComponentId> {
+        self.tree
+            .add_child_with_formatting(self.self_id, child, formatting)
+    }
+
+    /// Add a component as a child with default formatting
+    pub fn add_component<C: Component + 'static>(&mut self, component: C) -> Result<ComponentId> {
+        let boxed: Box<dyn Component> = Box::new(component);
+        self.add_child(ComponentNode::Component(boxed))
+    }
 }
 
 /// A frame is a layout container that holds children
 pub struct Frame {
-    pub children: Vec<ComponentId>,
     pub layout_mode: LayoutMode,
 }
 
 impl Frame {
     pub fn new(layout_mode: LayoutMode) -> Self {
-        Self {
-            children: Vec::new(),
-            layout_mode,
-        }
+        Self { layout_mode }
     }
 }
 
 /// All possible component types in the arena
 pub enum ComponentNode<'a> {
     Frame(Frame),
-    Status(StatusComponent<'a>),
+    Status(StatusComponent),
     Text(TextComponent<'a>),
     Debug(DebugComponent),
     Component(Box<dyn Component>),
@@ -282,13 +600,13 @@ impl<'a> ComponentNode<'a> {
         }
     }
 
-    pub fn scroll_bounds(&self) -> (usize, usize) {
+    pub fn initialize_children(&mut self, commands: &mut ComponentCommands<'a>) -> Result<()> {
         match self {
-            ComponentNode::Frame(_) => (0, usize::MAX),
-            ComponentNode::Status(component) => component.scroll_bounds(),
-            ComponentNode::Text(component) => component.scroll_bounds(),
-            ComponentNode::Debug(component) => component.scroll_bounds(),
-            ComponentNode::Component(component) => component.scroll_bounds(),
+            ComponentNode::Frame(_) => Ok(()),
+            ComponentNode::Status(status_component) => status_component.children(commands),
+            ComponentNode::Text(text_component) => text_component.children(commands),
+            ComponentNode::Debug(component) => component.children(commands),
+            ComponentNode::Component(component) => component.children(commands),
         }
     }
 
@@ -309,20 +627,6 @@ impl<'a> ComponentNode<'a> {
             }
         }
     }
-
-    pub fn children(&self) -> Option<&[ComponentId]> {
-        match self {
-            ComponentNode::Frame(frame) => Some(&frame.children),
-            _ => None,
-        }
-    }
-
-    pub fn children_mut(&mut self) -> Option<&mut Vec<ComponentId>> {
-        match self {
-            ComponentNode::Frame(frame) => Some(&mut frame.children),
-            _ => None,
-        }
-    }
 }
 
 /// Arena-based component tree
@@ -331,6 +635,8 @@ pub struct ComponentTree<'a> {
     components: Vec<ComponentNode<'a>>,
     /// parent[i] is the parent of component i
     parent: Vec<Option<ComponentId>>,
+    /// children[i] is the list of child component IDs for component i
+    children: Vec<Vec<ComponentId>>,
     /// rects[i] is the position and size of component i
     rects: Vec<Rect>,
     /// formatting[i] is the layout preferences for component i
@@ -341,6 +647,8 @@ pub struct ComponentTree<'a> {
     root: ComponentId,
     /// Components that have had state change
     dirty: Vec<ComponentId>,
+    /// Components that need their children() method called
+    pending_initialization: Vec<ComponentId>,
     /// Cursor position for the focused component (if any)
     cursor_pos: Option<(u16, u16)>,
     /// scroll_x[i] is the horizontal scroll offset for component i
@@ -357,6 +665,10 @@ pub struct ComponentTree<'a> {
     cursor_initialized: Vec<bool>,
     /// cursor_style[i] is the display style for the cursor of component i
     cursor_style: Vec<CursorStyle>,
+    /// Temporary storage for skip_lines when rendering children with scroll offset
+    skip_lines_override: std::collections::HashMap<ComponentId, u16>,
+    /// Path of component IDs from root to currently focused component
+    focus_path: Vec<ComponentId>,
 }
 
 impl<'a> ComponentTree<'a> {
@@ -365,6 +677,7 @@ impl<'a> ComponentTree<'a> {
             components: vec![root],
             focus: 0,
             parent: vec![None],
+            children: vec![Vec::new()],
             rects: vec![Rect {
                 x: 0,
                 y: 0,
@@ -374,6 +687,7 @@ impl<'a> ComponentTree<'a> {
             formatting: vec![Formatting::default()],
             root: 0,
             dirty: vec![0],
+            pending_initialization: vec![0],
             cursor_pos: None,
             scroll_x: vec![0],
             scroll_y: vec![0],
@@ -382,6 +696,8 @@ impl<'a> ComponentTree<'a> {
             last_cursor_row: vec![0],
             cursor_initialized: vec![false],
             cursor_style: vec![CursorStyle::default()],
+            skip_lines_override: std::collections::HashMap::new(),
+            focus_path: vec![0], // Start with root in focus path
         }
     }
 
@@ -402,7 +718,6 @@ impl<'a> ComponentTree<'a> {
     }
 
     /// Add a component as a child of a parent with custom formatting
-    /// Automatically adds any child nodes returned by the component's child_nodes() method
     pub fn add_child_with_formatting(
         &mut self,
         parent_id: ComponentId,
@@ -429,6 +744,7 @@ impl<'a> ComponentTree<'a> {
         self.formatting.push(formatting);
         self.scroll_x.push(0);
         self.scroll_y.push(0);
+        self.children.push(Vec::new()); // Initialize empty children list for this component
         // Cursor will be initialized to minimum bounds after first layout
         self.cursor_col.push(0);
         self.cursor_row.push(0);
@@ -446,27 +762,14 @@ impl<'a> ComponentTree<'a> {
             self.focus = child_id;
         }
 
-        // Add child to parent's children list
-        if let Some(parent) = self.components.get_mut(parent_id) {
-            if let Some(children) = parent.children_mut() {
-                children.push(child_id);
-            }
+        // Add child to parent's children list (using tree storage, not component storage)
+        if let Some(children) = self.children.get_mut(parent_id) {
+            children.push(child_id);
         }
 
-        // Get child nodes after adding the component to the tree
-        let child_nodes = match self.components.get(child_id) {
-            Some(ComponentNode::Frame(_)) => vec![],
-            Some(ComponentNode::Status(component)) => component.child_nodes(),
-            Some(ComponentNode::Text(component)) => component.child_nodes(),
-            Some(ComponentNode::Debug(component)) => component.child_nodes(),
-            Some(ComponentNode::Component(component)) => component.child_nodes(),
-            None => vec![],
-        };
-
-        // Recursively add child nodes
-        // We do this in a separate scope to ensure we don't hold any references
-        for child_node in child_nodes {
-            self.add_child(child_id, child_node)?;
+        // Mark component for initialization - will call children() method later
+        if !is_frame {
+            self.pending_initialization.push(child_id);
         }
 
         Ok(child_id)
@@ -484,10 +787,7 @@ impl<'a> ComponentTree<'a> {
 
     /// Get children of a component
     pub fn children(&self, id: ComponentId) -> Option<Vec<ComponentId>> {
-        self.components
-            .get(id)
-            .and_then(|c| c.children())
-            .map(|s| s.to_vec())
+        self.children.get(id).map(|c| c.clone())
     }
 
     /// Get parent of a component
@@ -546,12 +846,81 @@ impl<'a> ComponentTree<'a> {
                 let percent = percent.min(100) as u16;
                 (available * percent) / 100
             }
+            Measurement::Content => available, // Will be handled specially in layout_children
             Measurement::Fill => available,
         }
     }
 
+    /// Measure the size of a component by rendering it to a temporary buffer
+    fn measure_component(&self, id: ComponentId, max_width: u16, max_height: u16) -> (u16, u16) {
+        let mut buffer = TerminalBuffer::new(max_width, max_height);
+
+        if let Some(component) = self.components.get(id) {
+            let _ = component.render(&mut buffer);
+            buffer.measure_content()
+        } else {
+            (0, 0)
+        }
+    }
+
+    /// Build the focus path from root to a given component
+    /// Returns a vector of component IDs from root to the target component
+    fn build_focus_path(&self, target_id: ComponentId) -> Vec<ComponentId> {
+        let mut path = vec![target_id];
+        let mut current_id = target_id;
+
+        // Walk up the tree from target to root
+        while let Some(&Some(parent_id)) = self.parent.get(current_id) {
+            path.push(parent_id);
+            current_id = parent_id;
+        }
+
+        // Reverse to get root-to-target order
+        path.reverse();
+        path
+    }
+
+    /// Calculate the full content bounds of a component including all its children
+    /// Returns (full_width, full_height) - the rightmost and bottommost extents of all children
+    /// Falls back to the component's own rect dimensions if it has no children
+    fn get_content_bounds(&self, id: ComponentId) -> (u16, u16) {
+        let rect = self.rect(id).unwrap_or_default();
+
+        // Get children and calculate their extents
+        if let Some(child_ids) = self.children(id) {
+            if !child_ids.is_empty() {
+                let mut max_x = 0u16;
+                let mut max_y = 0u16;
+
+                for child_id in child_ids {
+                    if let Some(child_rect) = self.rects.get(child_id) {
+                        let right_edge = child_rect.x.saturating_add(child_rect.width);
+                        let bottom_edge = child_rect.y.saturating_add(child_rect.height);
+
+                        max_x = max_x.max(right_edge);
+                        max_y = max_y.max(bottom_edge);
+                    }
+                }
+
+                // Return the full content dimensions
+                return (max_x, max_y);
+            }
+        }
+
+        // No children, use the component's own dimensions
+        (rect.width, rect.height)
+    }
+
     pub fn layout(&mut self, width: u16, height: u16) {
         self.layout_node(self.root, width, height);
+    }
+
+    /// Mark all components as dirty (need re-render)
+    pub fn mark_all_dirty(&mut self) {
+        self.dirty.clear();
+        for i in 0..self.components.len() {
+            self.dirty.push(i);
+        }
     }
 
     fn layout_node(&mut self, id: ComponentId, available_width: u16, available_height: u16) {
@@ -576,12 +945,13 @@ impl<'a> ComponentTree<'a> {
 
         // Layout children
         if let Some(child_ids) = self.children(id) {
-            // Get layout mode if this is a Frame
-            let layout_mode = if let Some(ComponentNode::Frame(frame)) = self.components.get(id) {
-                frame.layout_mode
-            } else {
-                LayoutMode::HorizontalSplit
-            };
+            // Get layout mode from formatting
+            let layout_mode = self
+                .formatting
+                .get(id)
+                .copied()
+                .unwrap_or_default()
+                .layout_mode;
             self.layout_children(child_ids, component_width, component_height, layout_mode);
         }
     }
@@ -625,6 +995,13 @@ impl<'a> ComponentTree<'a> {
                     fill_count += 1;
                     widths.push(0); // Placeholder, will be calculated
                 }
+                Measurement::Content => {
+                    // Measure the component's rendered content
+                    let (measured_width, _) =
+                        self.measure_component(*child_id, available_width, available_height);
+                    used_width = used_width.saturating_add(measured_width);
+                    widths.push(measured_width);
+                }
                 _ => {
                     let width = self.calculate_size(formatting.preferred_width, available_width);
                     used_width = used_width.saturating_add(width);
@@ -663,8 +1040,14 @@ impl<'a> ComponentTree<'a> {
         for (i, child_id) in child_ids.iter().enumerate() {
             let formatting = self.formatting.get(*child_id).copied().unwrap_or_default();
             let component_width = widths[i];
-            let component_height =
-                self.calculate_size(formatting.preferred_height, available_height);
+            let component_height = if matches!(formatting.preferred_height, Measurement::Content) {
+                // Measure the component's rendered content
+                let (_, measured_height) =
+                    self.measure_component(*child_id, available_width, available_height);
+                measured_height
+            } else {
+                self.calculate_size(formatting.preferred_height, available_height)
+            };
 
             // Check if component fits on current line
             let fits_on_line = current_x + component_width <= available_width;
@@ -721,6 +1104,13 @@ impl<'a> ComponentTree<'a> {
                     fill_count += 1;
                     heights.push(0); // Placeholder, will be calculated
                 }
+                Measurement::Content => {
+                    // Measure the component's rendered content
+                    let (_, measured_height) =
+                        self.measure_component(*child_id, available_width, available_height);
+                    used_height = used_height.saturating_add(measured_height);
+                    heights.push(measured_height);
+                }
                 _ => {
                     let height = self.calculate_size(formatting.preferred_height, available_height);
                     used_height = used_height.saturating_add(height);
@@ -758,7 +1148,14 @@ impl<'a> ComponentTree<'a> {
 
         for (i, child_id) in child_ids.iter().enumerate() {
             let formatting = self.formatting.get(*child_id).copied().unwrap_or_default();
-            let component_width = self.calculate_size(formatting.preferred_width, available_width);
+            let component_width = if matches!(formatting.preferred_width, Measurement::Content) {
+                // Measure the component's rendered content
+                let (measured_width, _) =
+                    self.measure_component(*child_id, available_width, available_height);
+                measured_width
+            } else {
+                self.calculate_size(formatting.preferred_width, available_width)
+            };
             let component_height = heights[i];
 
             // Check if component fits on current column
@@ -828,8 +1225,10 @@ impl<'a> ComponentTree<'a> {
         // Initialize cursor to minimum bounds on first render
         if !self.cursor_initialized.get(id).copied().unwrap_or(false) {
             if let Some(component) = self.components.get(id) {
+                // Get full content bounds including children
+                let (content_width, content_height) = self.get_content_bounds(id);
                 let (min_col, _, min_row, _) =
-                    component.cursor_bounds(rect.width, rect.height, &formatting);
+                    component.cursor_bounds(content_width, content_height, &formatting);
                 if let Some(col_slot) = self.cursor_col.get_mut(id) {
                     *col_slot = min_col;
                 }
@@ -861,8 +1260,10 @@ impl<'a> ComponentTree<'a> {
             // Auto-scroll to keep cursor visible if component has Overflow::Scroll and cursor moved
             if formatting.overflow_y == Overflow::Scroll && cursor_moved {
                 if let Some(component) = self.components.get(id) {
+                    // Get full content bounds including children
+                    let (content_width, content_height) = self.get_content_bounds(id);
                     let (_min_col, _max_col, min_row, max_row) =
-                        component.cursor_bounds(rect.width, rect.height, &formatting);
+                        component.cursor_bounds(content_width, content_height, &formatting);
                     let mut new_scroll_y = scroll_y;
                     let visible_height = rect.height as usize;
 
@@ -885,6 +1286,12 @@ impl<'a> ComponentTree<'a> {
                             *scroll = new_scroll_y;
                         }
                         self.mark_dirty(id);
+                        // Also mark all children as dirty so they get re-rendered with new positions
+                        if let Some(child_ids) = self.children(id) {
+                            for child_id in child_ids {
+                                self.mark_dirty(child_id);
+                            }
+                        }
                     }
                 }
             }
@@ -892,8 +1299,10 @@ impl<'a> ComponentTree<'a> {
             // Clamp cursor to visible range (for mouse scrolling)
             if formatting.overflow_y == Overflow::Scroll {
                 if let Some(component) = self.components.get(id) {
+                    // Get full content bounds including children
+                    let (content_width, content_height) = self.get_content_bounds(id);
                     let (_min_col, _max_col, min_row, max_row) =
-                        component.cursor_bounds(rect.width, rect.height, &formatting);
+                        component.cursor_bounds(content_width, content_height, &formatting);
                     let visible_height = rect.height as usize;
 
                     // Only clamp if cursor is within valid bounds
@@ -913,6 +1322,48 @@ impl<'a> ComponentTree<'a> {
                             }
                             self.mark_dirty(id);
                         }
+                    }
+                }
+            }
+        }
+
+        // Scroll focused children into view
+        if formatting.overflow_y == Overflow::Scroll {
+            if let Some(child_ids) = self.children(id) {
+                // Find if any child is in the focus path
+                for focus_id in &self.focus_path {
+                    if let Some(pos) = child_ids.iter().position(|&cid| cid == *focus_id) {
+                        if let Some(child_rect) = self.rects.get(child_ids[pos]) {
+                            let child_y = child_rect.y as usize;
+                            let child_height = child_rect.height as usize;
+                            let visible_height = rect.height as usize;
+
+                            // Check if child is outside visible range
+                            if child_y < final_scroll_y {
+                                // Child is above visible range, scroll up to show it
+                                final_scroll_y = child_y;
+                                if let Some(scroll) = self.scroll_y.get_mut(id) {
+                                    *scroll = final_scroll_y;
+                                }
+                                self.mark_dirty(id);
+                                // Mark all children as dirty
+                                for child_id in &child_ids {
+                                    self.mark_dirty(*child_id);
+                                }
+                            } else if child_y + child_height > final_scroll_y + visible_height {
+                                // Child is below visible range, scroll down to show it
+                                final_scroll_y = (child_y + child_height).saturating_sub(visible_height);
+                                if let Some(scroll) = self.scroll_y.get_mut(id) {
+                                    *scroll = final_scroll_y;
+                                }
+                                self.mark_dirty(id);
+                                // Mark all children as dirty
+                                for child_id in &child_ids {
+                                    self.mark_dirty(*child_id);
+                                }
+                            }
+                        }
+                        break; // Only scroll for the first focused child in this parent
                     }
                 }
             }
@@ -938,17 +1389,32 @@ impl<'a> ComponentTree<'a> {
             // Set cursor position in buffer as component-relative
             buffer.set_cursor_position(relative_col, relative_row as u16);
 
+            // Check dirty AFTER we've processed scroll and potentially marked as dirty
+            let is_dirty_now = self.is_dirty(id);
+
             // Render component into the virtual buffer
-            if self.is_dirty(id) {
+            if is_dirty_now {
                 component.render(&mut buffer)?;
-                stdout.execute(ResetColor)?;
-                // Choose compositing method based on overflow settings
-                match formatting.overflow_x {
-                    Overflow::Wrap => {
-                        self.composite_buffer_wrap(stdout, &buffer, rect.x, rect.y)?;
-                    }
-                    Overflow::Hide | Overflow::Scroll => {
-                        self.composite_buffer_hide(stdout, &buffer, rect.x, rect.y)?;
+
+                // Only composite if the buffer has content
+                if !buffer.commands().is_empty() {
+                    stdout.execute(ResetColor)?;
+
+                    // Use skip_lines override if available (set by parent during child rendering)
+                    let skip_lines = self.skip_lines_override.get(&id).copied().unwrap_or(0);
+                    let max_lines = rect.height;
+
+                    match formatting.overflow_x {
+                        Overflow::Wrap => {
+                            self.composite_buffer_wrap(
+                                stdout, &buffer, rect.x, rect.y, skip_lines, max_lines,
+                            )?;
+                        }
+                        Overflow::Hide | Overflow::Scroll => {
+                            self.composite_buffer_hide(
+                                stdout, &buffer, rect.x, rect.y, skip_lines, max_lines,
+                            )?;
+                        }
                     }
                 }
             }
@@ -972,9 +1438,124 @@ impl<'a> ComponentTree<'a> {
         }
 
         // Render children
-        if let Some(child_ids) = self.children(id) {
-            for child_id in child_ids {
-                self.render_node(child_id, stdout)?;
+        if let Some(child_ids_vec) = self.children(id) {
+            // Get this component's scroll offset and bounds
+            let parent_scroll_y = self.scroll_y.get(id).copied().unwrap_or(0);
+            let parent_rect = self.rects.get(id).copied().unwrap_or_default();
+
+            // Mark only visible children as dirty so they render with updated positions
+            // This applies to all components with children, not just scrollable ones
+            let visible_start = parent_scroll_y;
+            let visible_end = parent_scroll_y + parent_rect.height as usize;
+
+            for child_id in child_ids_vec.iter() {
+                if let Some(child_rect) = self.rects.get(*child_id) {
+                    let original_y = child_rect.y as usize;
+                    let child_height = child_rect.height as usize;
+                    let child_end = original_y + child_height;
+
+                    // Mark child as dirty only if it's at least partially visible
+                    if child_end > visible_start && original_y < visible_end {
+                        self.mark_dirty(*child_id);
+                    }
+                }
+            }
+
+            // Limit scrolling: allow scrolling until the final line appears at the top of the view region
+            if formatting.overflow_y == Overflow::Scroll && !child_ids_vec.is_empty() {
+                // Get the y position of the last child (children are in order)
+                if let Some(last_child_id) = child_ids_vec.last() {
+                    if let Some(child_rect) = self.rects.get(*last_child_id) {
+                        let max_child_y = child_rect.y as usize;
+
+                        // Max scroll is the y position of the last child
+                        // This allows scrolling until the final line appears at the top
+                        if parent_scroll_y > max_child_y {
+                            if let Some(scroll) = self.scroll_y.get_mut(id) {
+                                *scroll = max_child_y;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Track the lowest point rendered by children
+            let mut lowest_rendered_y: Option<u16> = None;
+
+            for child_id in child_ids_vec {
+                // Get child rect info without holding a borrow
+                let (original_y, child_height) = {
+                    if let Some(child_rect) = self.rects.get(child_id) {
+                        (child_rect.y as usize, child_rect.height as usize)
+                    } else {
+                        continue;
+                    }
+                };
+
+                // Check if child is visible within the scrollable area
+                // Child is visible if it overlaps with [scroll_y, scroll_y + parent_height)
+                let visible_start = parent_scroll_y;
+                let visible_end = parent_scroll_y + parent_rect.height as usize;
+                let child_end = original_y + child_height;
+
+                // Skip if completely above or below visible range
+                if child_end <= visible_start || original_y >= visible_end {
+                    continue;
+                }
+
+                // Calculate screen position: parent.y + (child.y - scroll_y)
+                let screen_y = if original_y >= parent_scroll_y {
+                    parent_rect.y + (original_y - parent_scroll_y) as u16
+                } else {
+                    // Child partially above scroll point, render at parent's top
+                    parent_rect.y
+                };
+
+                // Update lowest rendered point
+                let child_screen_bottom = screen_y + child_height as u16;
+                lowest_rendered_y = Some(match lowest_rendered_y {
+                    None => child_screen_bottom,
+                    Some(current_lowest) => current_lowest.max(child_screen_bottom),
+                });
+
+                // Calculate skip_lines before adjusting position
+                let skip_lines = if original_y < parent_scroll_y {
+                    (parent_scroll_y - original_y) as u16
+                } else {
+                    0
+                };
+
+                // Temporarily adjust child's y position for rendering
+                {
+                    if let Some(child_rect_mut) = self.rects.get_mut(child_id) {
+                        child_rect_mut.y = screen_y;
+                    }
+                } // Drop the mutable borrow
+
+                // Store skip_lines override before rendering
+                self.skip_lines_override.insert(child_id, skip_lines);
+                let _ = self.render_node(child_id, stdout);
+                self.skip_lines_override.remove(&child_id);
+
+                // Restore original y position for next frame
+                {
+                    if let Some(child_rect_mut) = self.rects.get_mut(child_id) {
+                        child_rect_mut.y = original_y as u16;
+                    }
+                }
+            }
+
+            // Fill remaining space below children with whitespace
+            if let Some(lowest_y) = lowest_rendered_y {
+                let parent_bottom = parent_rect.y + parent_rect.height;
+                if lowest_y < parent_bottom {
+                    for y in lowest_y..parent_bottom {
+                        for x in parent_rect.x..(parent_rect.x + parent_rect.width) {
+                            stdout.execute(MoveTo(x, y))?;
+                            stdout.execute(Print(' '))?;
+                        }
+                    }
+                }
             }
         }
 
@@ -987,13 +1568,36 @@ impl<'a> ComponentTree<'a> {
         buffer: &TerminalBuffer,
         start_x: u16,
         start_y: u16,
+        skip_lines: u16,
+        max_lines: u16,
     ) -> Result<()> {
         let mut x = 0u16;
-        let mut y = 0u16;
+        let mut screen_y = 0u16; // Track position on screen
+        let mut skipped_newlines = 0u16; // Track logical lines (Newline commands only)
 
         for cmd in buffer.commands() {
-            // Early exit if we've exceeded vertical bounds
-            if y >= buffer.height() {
+            // Skip logical lines until we reach skip_lines
+            // Count both Newline commands and wrapped rows as line boundaries
+            if skipped_newlines < skip_lines {
+                match cmd {
+                    TerminalCommand::Newline => {
+                        skipped_newlines += 1;
+                        x = 0;
+                    }
+                    TerminalCommand::Print(_) => {
+                        x += 1;
+                        if x >= buffer.width() {
+                            skipped_newlines += 1;
+                            x = 0;
+                        }
+                    }
+                    _ => {}
+                }
+                continue;
+            }
+
+            // Exit if we've rendered max_lines on screen
+            if screen_y >= max_lines {
                 break;
             }
 
@@ -1005,7 +1609,7 @@ impl<'a> ComponentTree<'a> {
                     }
 
                     // Move to position and print
-                    stdout.execute(MoveTo(start_x + x, start_y + y))?;
+                    stdout.execute(MoveTo(start_x + x, start_y + screen_y))?;
                     stdout.execute(Print(ch))?;
                     x += 1;
                 }
@@ -1014,12 +1618,12 @@ impl<'a> ComponentTree<'a> {
                     stdout.execute(ResetColor)?;
                     // Pad the rest of the line with spaces
                     while x < buffer.width() {
-                        stdout.execute(MoveTo(start_x + x, start_y + y))?;
+                        stdout.execute(MoveTo(start_x + x, start_y + screen_y))?;
                         stdout.execute(Print(' '))?;
                         x += 1;
                     }
                     x = 0;
-                    y += 1;
+                    screen_y += 1;
                 }
                 TerminalCommand::SetForeground(color) => {
                     stdout.execute(SetForegroundColor(*color))?;
@@ -1033,24 +1637,24 @@ impl<'a> ComponentTree<'a> {
             }
         }
 
-        // Pad the rest of the current row if incomplete (only if within bounds)
-        if y < buffer.height() {
+        // Always pad the current line if we have content, even if we hit max_lines
+        if x > 0 || screen_y > 0 {
             stdout.execute(ResetColor)?;
             while x < buffer.width() {
-                stdout.execute(MoveTo(start_x + x, start_y + y))?;
+                stdout.execute(MoveTo(start_x + x, start_y + screen_y))?;
                 stdout.execute(Print(' '))?;
                 x += 1;
             }
+        }
 
-            // Clear any remaining rows beyond what was rendered
-            y += 1;
-            while y < buffer.height() {
-                for x_pos in 0..buffer.width() {
-                    stdout.execute(MoveTo(start_x + x_pos, start_y + y))?;
-                    stdout.execute(Print(' '))?;
-                }
-                y += 1;
+        // Clear any remaining screen rows beyond what was rendered
+        let mut clear_y = screen_y + 1;
+        while clear_y < max_lines {
+            for x_pos in 0..buffer.width() {
+                stdout.execute(MoveTo(start_x + x_pos, start_y + clear_y))?;
+                stdout.execute(Print(' '))?;
             }
+            clear_y += 1;
         }
 
         Ok(())
@@ -1062,13 +1666,36 @@ impl<'a> ComponentTree<'a> {
         buffer: &TerminalBuffer,
         start_x: u16,
         start_y: u16,
+        skip_lines: u16,
+        max_lines: u16,
     ) -> Result<()> {
         let mut x = 0u16;
-        let mut y = 0u16;
+        let mut screen_y = 0u16; // Track position on screen
+        let mut skipped_newlines = 0u16; // Track logical lines (Newline commands only)
 
         for cmd in buffer.commands() {
-            // Early exit if we've exceeded vertical bounds
-            if y >= buffer.height() {
+            // Skip logical lines until we reach skip_lines
+            // Count both Newline commands and wrapped rows as line boundaries
+            if skipped_newlines < skip_lines {
+                match cmd {
+                    TerminalCommand::Newline => {
+                        skipped_newlines += 1;
+                        x = 0;
+                    }
+                    TerminalCommand::Print(_ch) => {
+                        x += 1;
+                        if x >= buffer.width() {
+                            skipped_newlines += 1;
+                            x = 0;
+                        }
+                    }
+                    _ => {}
+                }
+                continue;
+            }
+
+            // Exit if we've rendered max_lines on screen
+            if screen_y >= max_lines {
                 break;
             }
 
@@ -1076,28 +1703,36 @@ impl<'a> ComponentTree<'a> {
                 TerminalCommand::Print(ch) => {
                     // Wrap to next line if we overflow width
                     if x >= buffer.width() {
-                        x = 0;
-                        y += 1;
-                        if y >= buffer.height() {
-                            break;
+                        // Pad the line we're leaving
+                        while x < buffer.width() {
+                            stdout.execute(MoveTo(start_x + x, start_y + screen_y))?;
+                            stdout.execute(Print(' '))?;
+                            x += 1;
                         }
+                        x = 0;
+                        screen_y += 1;
+                    }
+
+                    // Check bounds after wrap but before rendering
+                    if screen_y >= max_lines {
+                        break;
                     }
 
                     // Move to position and print
-                    stdout.execute(MoveTo(start_x + x, start_y + y))?;
+                    stdout.execute(MoveTo(start_x + x, start_y + screen_y))?;
                     stdout.execute(Print(ch))?;
                     x += 1;
                 }
                 TerminalCommand::Newline => {
                     // Pad the rest of the line with spaces
                     while x < buffer.width() {
-                        stdout.execute(MoveTo(start_x + x, start_y + y))?;
+                        stdout.execute(MoveTo(start_x + x, start_y + screen_y))?;
                         stdout.execute(Print(' '))?;
                         x += 1;
                     }
                     stdout.execute(ResetColor)?;
                     x = 0;
-                    y += 1;
+                    screen_y += 1;
                 }
                 TerminalCommand::SetForeground(color) => {
                     stdout.execute(SetForegroundColor(*color))?;
@@ -1111,24 +1746,22 @@ impl<'a> ComponentTree<'a> {
             }
         }
 
-        // Pad the rest of the current row if incomplete (only if within bounds)
-        if y < buffer.height() {
-            while x < buffer.width() {
-                stdout.execute(MoveTo(start_x + x, start_y + y))?;
-                stdout.execute(Print(' '))?;
-                x += 1;
-            }
-            stdout.execute(ResetColor)?;
+        // Always pad the current row and clear remaining rows to avoid stale content
+        while x < buffer.width() {
+            stdout.execute(MoveTo(start_x + x, start_y + screen_y))?;
+            stdout.execute(Print(' '))?;
+            x += 1;
+        }
+        stdout.execute(ResetColor)?;
 
-            // Clear any remaining rows beyond what was rendered
-            y += 1;
-            while y < buffer.height() {
-                for x_pos in 0..buffer.width() {
-                    stdout.execute(MoveTo(start_x + x_pos, start_y + y))?;
-                    stdout.execute(Print(' '))?;
-                }
-                y += 1;
+        // Clear any remaining screen rows beyond what was rendered
+        let mut clear_y = screen_y + 1;
+        while clear_y < max_lines {
+            for x_pos in 0..buffer.width() {
+                stdout.execute(MoveTo(start_x + x_pos, start_y + clear_y))?;
+                stdout.execute(Print(' '))?;
             }
+            clear_y += 1;
         }
 
         Ok(())
@@ -1151,29 +1784,30 @@ impl<'a> ComponentTree<'a> {
                     let new_scroll = current_scroll.saturating_sub(1);
 
                     // Get scroll bounds from the focused component
-                    if let Some(component) = self.components.get(self.focus) {
-                        let (min_scroll, max_scroll) = component.scroll_bounds();
-                        let clamped_scroll = new_scroll.max(min_scroll).min(max_scroll);
-                        self.scroll_y.insert(self.focus, clamped_scroll);
-                    } else {
-                        self.scroll_y.insert(self.focus, new_scroll);
-                    }
+                    self.scroll_y.insert(self.focus, new_scroll);
 
                     self.mark_dirty(self.focus);
                     return Ok(());
                 }
                 MouseEventKind::ScrollDown => {
                     let current_scroll = self.scroll_y.get(self.focus).copied().unwrap_or(0);
-                    let new_scroll = current_scroll + 1;
 
-                    // Get scroll bounds from the focused component
-                    if let Some(component) = self.components.get(self.focus) {
-                        let (min_scroll, max_scroll) = component.scroll_bounds();
-                        let clamped_scroll = new_scroll.max(min_scroll).min(max_scroll);
-                        self.scroll_y.insert(self.focus, clamped_scroll);
-                    } else {
-                        self.scroll_y.insert(self.focus, new_scroll);
+                    // Get the max scroll position from the last child, same as render_node logic
+                    let mut max_scroll = current_scroll; // Default to current if no children
+                    if let Some(child_ids_vec) = self.children(self.focus) {
+                        if !child_ids_vec.is_empty() {
+                            if let Some(last_child_id) = child_ids_vec.last() {
+                                if let Some(child_rect) = self.rects.get(*last_child_id) {
+                                    max_scroll = child_rect.y as usize;
+                                }
+                            }
+                        }
                     }
+
+                    // Clamp to prevent scrolling past the end
+                    let new_scroll = (current_scroll + 1).min(max_scroll);
+
+                    self.scroll_y.insert(self.focus, new_scroll);
 
                     self.mark_dirty(self.focus);
                     return Ok(());
@@ -1184,6 +1818,33 @@ impl<'a> ComponentTree<'a> {
 
         // For other events, pass to root
         self.update_node(self.root, &event)?;
+
+        // After handling events, initialize any pending components
+        self.initialize_pending_components()?;
+        Ok(())
+    }
+
+    /// Initialize children for all pending components
+    pub fn initialize_pending_components(&mut self) -> Result<()> {
+        // Keep processing until all pending components are initialized
+        // This handles cases where components add children during their own initialization
+        while !self.pending_initialization.is_empty() {
+            let pending = std::mem::take(&mut self.pending_initialization);
+
+            for comp_id in pending {
+                // Use unsafe pointer to avoid borrow checker issues
+                // This is safe because initialize_children only needs to add children,
+                // which is a safe operation on the tree
+                unsafe {
+                    let tree_ptr = self as *mut ComponentTree<'a>;
+                    let mut commands = ComponentCommands::new(&mut *tree_ptr, comp_id);
+                    if let Some(component) = (&mut *tree_ptr).components.get_mut(comp_id) {
+                        component.initialize_children(&mut commands)?;
+                    }
+                }
+            }
+        }
+
         Ok(())
     }
 

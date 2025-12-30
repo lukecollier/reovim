@@ -1,4 +1,4 @@
-use crate::tui::{Component, Formatting, Measurement, Overflow, terminal_buffer::TerminalBuffer};
+use crate::tui::{Component, Formatting, LayoutMode, Measurement, Overflow, terminal_buffer::TerminalBuffer};
 
 use anyhow::Result;
 
@@ -21,6 +21,8 @@ impl<'a> Component for CommandComponent {
             overflow_x: Overflow::Hide,
             overflow_y: Overflow::Hide,
             request_focus: false,
+            layout_mode: LayoutMode::VerticalSplit,
+            focusable: true,
         }
     }
 }
