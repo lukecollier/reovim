@@ -30,58 +30,68 @@ impl VcsStatus {
     }
 }
 
-/// Split text into chunks of max width, respecting unicode character widths
-fn split_by_width(text: &str, max_width: u16) -> Vec<&str> {
-    let max_width = max_width as usize;
-    let mut chunks = Vec::new();
-    let mut current_width = 0;
-    let mut start_byte = 0;
-
-    for (byte_pos, ch) in text.char_indices() {
-        let ch_width = ch.width().unwrap_or(0);
-        if current_width + ch_width > max_width && start_byte < byte_pos {
-            // Exceeded width, slice from start_byte to byte_pos
-            chunks.push(&text[start_byte..byte_pos]);
-            start_byte = byte_pos;
-            current_width = ch_width;
-        } else {
-            current_width += ch_width;
-        }
-    }
-
-    // Add remaining text
-    if start_byte < text.len() {
-        chunks.push(&text[start_byte..]);
-    }
-
-    chunks
-}
-
-struct TextRow {
+struct TextGutter {
     line_number: u16,
     vcs_status: VcsStatus,
+    width: usize,
+}
+
+impl TextGutter {
+    fn new(line_number: u16, width: usize) -> Self {
+        Self {
+            line_number,
+            vcs_status: VcsStatus::None,
+            width,
+        }
+    }
+}
+
+impl Component for TextGutter {
+    fn render(&self, buffer: &mut super::terminal_buffer::TerminalBuffer) -> anyhow::Result<()> {
+        // Just write the content - let the composite functions handle wrapping
+        let width = self.width;
+        buffer
+            .set_background(self.vcs_status.color())
+            .write(&"│")
+            .set_background(Color::Reset)
+            .write(&format!("{:>width$} ", self.line_number));
+        Ok(())
+    }
+    fn default_formatting(&self) -> Formatting {
+        Formatting {
+            preferred_width: Measurement::Content,
+            preferred_height: Measurement::Fill,
+            overflow_x: Overflow::Hide,
+            overflow_y: Overflow::Hide,
+            request_focus: false,
+            focusable: false,
+            ..Default::default()
+        }
+    }
+}
+
+struct TextContent {
     selected: bool,
     content: Rc<RefCell<String>>,
 }
 
-impl TextRow {
-    pub fn from_str(line_number: u16, content: Rc<RefCell<String>>) -> anyhow::Result<Self> {
-        Ok(Self {
-            line_number,
-            vcs_status: VcsStatus::None,
-            selected: false,
-            content: content,
-        })
+impl TextContent {
+    fn new(selected: bool, content: Rc<RefCell<String>>) -> Self {
+        Self { selected, content }
     }
 }
 
-impl Component for TextRow {
+impl Component for TextContent {
     fn render(&self, buffer: &mut super::terminal_buffer::TerminalBuffer) -> anyhow::Result<()> {
         // Just write the content - let the composite functions handle wrapping
+        if self.selected {
+            buffer.set_background(Color::DarkGrey);
+        } else {
+            buffer.set_background(Color::Reset);
+        }
         buffer.write(&*self.content.borrow());
         Ok(())
     }
-
     fn update(
         &mut self,
         _event: ReovimEvent,
@@ -93,35 +103,10 @@ impl Component for TextRow {
             self.selected = true;
             Ok(true)
         } else {
-            self.selected = true;
+            self.selected = false;
             Ok(true)
         }
     }
-
-    fn get_row_width(&self, row: u16, render_width: u16) -> u16 {
-        let content = self.content.borrow();
-        // Split content by render width and return the actual width of the specific row
-        let rows = split_by_width(&content, render_width);
-        if let Some(row_content) = rows.get(row as usize) {
-            row_content.width() as u16
-        } else {
-            render_width
-        }
-    }
-
-    fn cursor_bounds(
-        &self,
-        _width: u16,
-        _height: u16,
-        _formatting: &Formatting,
-    ) -> (u16, u16, u16, u16) {
-        // TextRow is a single logical line, treated as a single entity for navigation
-        // Wrapping is visual only and doesn't affect navigation boundaries
-        // max_col is the logical content width
-        let max_col = (self.content.borrow().width() as u16).saturating_sub(1);
-        (0, max_col, 0, 0)
-    }
-
     fn default_formatting(&self) -> Formatting {
         Formatting {
             preferred_width: Measurement::Fill,
@@ -130,6 +115,48 @@ impl Component for TextRow {
             overflow_y: Overflow::Hide,
             request_focus: false,
             layout_mode: LayoutMode::VerticalSplit,
+            focusable: true,
+            ..Default::default()
+        }
+    }
+}
+
+struct TextRow {
+    line_number: u16,
+    vcs_status: VcsStatus,
+    content: Rc<RefCell<String>>,
+    line_number_width: usize,
+}
+
+impl TextRow {
+    pub fn from_str(
+        line_number: u16,
+        content: Rc<RefCell<String>>,
+        line_number_width: usize,
+    ) -> anyhow::Result<Self> {
+        Ok(Self {
+            line_number,
+            vcs_status: VcsStatus::None,
+            content: content,
+            line_number_width,
+        })
+    }
+}
+
+impl Component for TextRow {
+    fn children(&mut self, commands: &mut super::tree::ComponentCommands) -> Result<()> {
+        commands.add_component(TextGutter::new(self.line_number, self.line_number_width))?;
+        commands.add_component(TextContent::new(false, self.content.clone()))?;
+        Ok(())
+    }
+    fn default_formatting(&self) -> Formatting {
+        Formatting {
+            preferred_width: Measurement::Fill,
+            preferred_height: Measurement::Content,
+            overflow_x: Overflow::Hide,
+            overflow_y: Overflow::Hide,
+            request_focus: false,
+            layout_mode: LayoutMode::HorizontalSplit,
             focusable: true,
             ..Default::default()
         }
@@ -152,8 +179,20 @@ impl EditableText {
 
 impl Component for EditableText {
     fn children(&mut self, commands: &mut super::tree::ComponentCommands) -> anyhow::Result<()> {
-        for line in &self.lines {
-            commands.add_component(TextRow::from_str(0, line.clone())?)?;
+        let line_number_width = self
+            .lines
+            .iter()
+            .enumerate()
+            .last()
+            .map(|(idx, _line)| (idx + 1).to_string().len())
+            .unwrap_or(0);
+        for (idx, line) in self.lines.iter().enumerate() {
+            let line_number = idx + 1;
+            commands.add_component(TextRow::from_str(
+                line_number as u16,
+                line.clone(),
+                line_number_width,
+            )?)?;
         }
         Ok(())
     }
@@ -201,23 +240,6 @@ impl Component for EditableText {
             }
         }
         Ok(false)
-    }
-
-    fn cursor_bounds(
-        &self,
-        _width: u16,
-        _height: u16,
-        _formatting: &Formatting,
-    ) -> (u16, u16, u16, u16) {
-        // EditableText has one child (TextRow) per line
-        let line_count = self.lines.len();
-        let max_row = if line_count > 0 {
-            (line_count - 1) as u16
-        } else {
-            0
-        };
-        // max_col is wide open since children will be TextRows with their own widths
-        (0, u16::MAX, 0, max_row)
     }
 
     fn default_formatting(&self) -> Formatting {

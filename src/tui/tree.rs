@@ -12,8 +12,36 @@ use crossterm::cursor::{Hide, MoveTo, Show};
 use crossterm::event::{MouseButton, MouseEventKind};
 use crossterm::style::{Print, ResetColor, SetBackgroundColor, SetForegroundColor};
 use std::io::Stdout;
+use unicode_width::{UnicodeWidthChar, UnicodeWidthStr};
 
 pub type ComponentId = usize;
+
+/// Split text into chunks of max width, respecting unicode character widths
+fn split_by_width(text: &str, max_width: u16) -> Vec<&str> {
+    let max_width = max_width as usize;
+    let mut chunks = Vec::new();
+    let mut current_width = 0;
+    let mut start_byte = 0;
+
+    for (byte_pos, ch) in text.char_indices() {
+        let ch_width = ch.width().unwrap_or(0);
+        if current_width + ch_width > max_width && start_byte < byte_pos {
+            // Exceeded width, slice from start_byte to byte_pos
+            chunks.push(&text[start_byte..byte_pos]);
+            start_byte = byte_pos;
+            current_width = ch_width;
+        } else {
+            current_width += ch_width;
+        }
+    }
+
+    // Add remaining text
+    if start_byte < text.len() {
+        chunks.push(&text[start_byte..]);
+    }
+
+    chunks
+}
 
 /// Commands that a component can perform on the tree
 /// This provides a limited interface to prevent arbitrary tree mutations
@@ -126,15 +154,13 @@ impl<'a> ComponentCommands<'a> {
             .copied()
             .unwrap_or_default();
 
-        // Get full content bounds including children
-        let (content_width, content_height) = self.tree.get_content_bounds(self.self_id);
+        // Measure logical bounds
+        let (logical_width, logical_height) = self.tree.measure_logical_bounds(self.self_id);
 
-        let (min_col, max_col, min_row, max_row) = self
-            .tree
-            .components
-            .get(self.self_id)
-            .map(|comp| comp.cursor_bounds(content_width, content_height, &formatting))
-            .unwrap_or((0, u16::MAX, 0, u16::MAX));
+        let min_col = 0;
+        let max_col = logical_width.saturating_sub(1);
+        let min_row = 0;
+        let max_row = logical_height.saturating_sub(1);
 
         let clamped_col = col.max(min_col).min(max_col);
         let clamped_row = row.max(min_row).min(max_row);
@@ -159,7 +185,6 @@ impl<'a> ComponentCommands<'a> {
             self.self_id
         };
 
-        let rect = self.tree.rects.get(current_id).copied().unwrap_or_default();
         let formatting = self
             .tree
             .formatting
@@ -171,26 +196,18 @@ impl<'a> ComponentCommands<'a> {
         let current_col = self.tree.cursor_col.get(current_id).copied().unwrap_or(0);
         let current_row = self.tree.cursor_row.get(current_id).copied().unwrap_or(0);
 
-        // Measure content to get bounds
-        let (content_width, content_height) = if self
-            .tree
-            .children(current_id)
-            .map_or(true, |c| c.is_empty())
-        {
-            // Leaf component - measure at actual render width
-            self.tree
-                .measure_component(current_id, rect.width, rect.height)
-        } else {
-            // Container - use content bounds
-            self.tree.get_content_bounds(current_id)
-        };
+        // Measure logical (unwrapped) bounds for cursor navigation
+        let (logical_width, logical_height) = self.tree.measure_logical_bounds(current_id);
 
-        let (min_col, max_col, min_row, max_row) = self
-            .tree
-            .components
-            .get(current_id)
-            .map(|comp| comp.cursor_bounds(content_width, content_height, &formatting))
-            .unwrap_or((0, u16::MAX, 0, u16::MAX));
+        let min_col = 0;
+        let max_col = logical_width.saturating_sub(1);
+        let min_row = 0;
+        let mut max_row = logical_height.saturating_sub(1);
+
+        // For wrapped components, treat as single logical row
+        if formatting.overflow_x == Overflow::Wrap {
+            max_row = 0;
+        }
 
         // Try to move within current component
         let new_col = if col_delta > 0 {
@@ -237,9 +254,9 @@ impl<'a> ComponentCommands<'a> {
             return;
         }
 
-        // At boundary - try to navigate to siblings
-        let parent_id = self.tree.parent(current_id).and_then(|p| p);
-        if let Some(parent) = parent_id {
+        // At boundary - backtrack up the tree to find a parent that supports navigation in this direction
+        let mut backtrack_id = current_id;
+        while let Some(parent) = self.tree.parent(backtrack_id).and_then(|p| p) {
             let parent_layout = self
                 .tree
                 .formatting
@@ -263,6 +280,9 @@ impl<'a> ComponentCommands<'a> {
                 self.navigate_siblings(parent, col_delta, row_delta);
                 return;
             }
+
+            // Parent doesn't support this navigation direction, keep backtracking
+            backtrack_id = parent;
         }
 
         // Clamp to boundaries and stay in component
@@ -347,67 +367,22 @@ impl<'a> ComponentCommands<'a> {
 
                     // Get the focused component after descent
                     let focus_id = self.tree.focus;
-                    let rect = self.tree.rects.get(focus_id).copied().unwrap_or_default();
+                    let (logical_width, logical_height) =
+                        self.tree.measure_logical_bounds(focus_id);
 
-                    // Get the child's total content bounds
-                    let formatting = self
-                        .tree
-                        .formatting
-                        .get(focus_id)
-                        .copied()
-                        .unwrap_or_default();
-                    let (content_width, content_height) =
-                        if self.tree.children(focus_id).map_or(true, |c| c.is_empty()) {
-                            self.tree
-                                .measure_component(focus_id, rect.width, rect.height)
-                        } else {
-                            self.tree.get_content_bounds(focus_id)
-                        };
-
-                    let (_, max_col, _, max_row) = self
-                        .tree
-                        .components
-                        .get(focus_id)
-                        .map(|comp| comp.cursor_bounds(content_width, content_height, &formatting))
-                        .unwrap_or((0, u16::MAX, 0, u16::MAX));
+                    let max_col = logical_width.saturating_sub(1);
+                    let max_row = logical_height.saturating_sub(1);
 
                     // Clamp column to child's total content width
                     let clamped_col = parent_col.min(max_col);
 
-                    // Calculate target row based on movement direction and wrapped content
+                    // Set cursor to logical bounds, not visual wrapped position
+                    // Wrapping is only a rendering concern, not a navigation concern
                     let target_row = if is_moving_up {
-                        // When moving up: calculate which row the clamped_col falls into
-                        // by walking through wrapped rows until we reach the end
-                        let mut remaining_col = clamped_col;
-                        let mut target_row = 0u16;
-
-                        // Find which row the logical column falls into based on per-row widths
-                        loop {
-                            let row_width = self
-                                .tree
-                                .components
-                                .get(focus_id)
-                                .map(|comp| comp.get_row_width(target_row, rect.width))
-                                .unwrap_or(rect.width);
-
-                            if remaining_col < row_width {
-                                // Found the right row
-                                break;
-                            }
-
-                            remaining_col -= row_width;
-                            target_row += 1;
-
-                            // Safety check to prevent infinite loops
-                            if target_row > max_row {
-                                target_row = max_row;
-                                break;
-                            }
-                        }
-
-                        target_row
+                        // When moving up: position at the last logical row
+                        max_row
                     } else {
-                        // When moving down, position cursor at the first row of the component
+                        // When moving down: position at the first logical row
                         0
                     };
 
@@ -636,34 +611,6 @@ impl<'a> ComponentNode<'a> {
             ComponentNode::Component(component) => component.children(commands),
         }
     }
-
-    /// (min_col, max_col, min_row, max_row)
-    pub fn cursor_bounds(
-        &self,
-        width: u16,
-        height: u16,
-        formatting: &Formatting,
-    ) -> (u16, u16, u16, u16) {
-        match self {
-            ComponentNode::Frame(_) => (0, u16::MAX, 0, u16::MAX),
-            ComponentNode::Status(component) => component.cursor_bounds(width, height, formatting),
-            ComponentNode::Text(component) => component.cursor_bounds(width, height, formatting),
-            ComponentNode::Debug(component) => component.cursor_bounds(width, height, formatting),
-            ComponentNode::Component(component) => {
-                component.cursor_bounds(width, height, formatting)
-            }
-        }
-    }
-
-    pub fn get_row_width(&self, row: u16, render_width: u16) -> u16 {
-        match self {
-            ComponentNode::Frame(_) => render_width,
-            ComponentNode::Status(component) => component.get_row_width(row, render_width),
-            ComponentNode::Text(component) => component.get_row_width(row, render_width),
-            ComponentNode::Debug(component) => component.get_row_width(row, render_width),
-            ComponentNode::Component(component) => component.get_row_width(row, render_width),
-        }
-    }
 }
 
 /// Arena-based component tree
@@ -702,8 +649,6 @@ pub struct ComponentTree<'a> {
     cursor_initialized: Vec<bool>,
     /// cursor_style[i] is the display style for the cursor of component i
     cursor_style: Vec<CursorStyle>,
-    /// Temporary storage for skip_lines when rendering children with scroll offset
-    skip_lines_override: std::collections::HashMap<ComponentId, u16>,
     /// Path of component IDs from root to currently focused component
     focus_path: Vec<ComponentId>,
 }
@@ -733,7 +678,6 @@ impl<'a> ComponentTree<'a> {
             last_cursor_row: vec![0],
             cursor_initialized: vec![false],
             cursor_style: vec![CursorStyle::default()],
-            skip_lines_override: std::collections::HashMap::new(),
             focus_path: vec![0], // Start with root in focus path
         }
     }
@@ -889,7 +833,47 @@ impl<'a> ComponentTree<'a> {
     }
 
     /// Measure the size of a component by rendering it to a temporary buffer
+    /// For containers with children, measures the combined child dimensions instead
     fn measure_component(&self, id: ComponentId, max_width: u16, max_height: u16) -> (u16, u16) {
+        // If this component has children, measure their combined size instead
+        if let Some(child_ids) = self.children(id) {
+            if !child_ids.is_empty() {
+                let formatting = self.formatting.get(id).copied().unwrap_or_default();
+
+                return match formatting.layout_mode {
+                    LayoutMode::VerticalSplit => {
+                        // Children are stacked vertically: width is max, height is sum
+                        let mut total_height = 0u16;
+                        let mut max_width_child = 0u16;
+
+                        for &child_id in &child_ids {
+                            let (child_width, child_height) =
+                                self.measure_component(child_id, max_width, max_height);
+                            max_width_child = max_width_child.max(child_width);
+                            total_height = total_height.saturating_add(child_height);
+                        }
+
+                        (max_width_child, total_height)
+                    }
+                    LayoutMode::HorizontalSplit => {
+                        // Children are laid out horizontally: width is sum, height is max
+                        let mut total_width = 0u16;
+                        let mut max_height_child = 0u16;
+
+                        for &child_id in &child_ids {
+                            let (child_width, child_height) =
+                                self.measure_component(child_id, max_width, max_height);
+                            total_width = total_width.saturating_add(child_width);
+                            max_height_child = max_height_child.max(child_height);
+                        }
+
+                        (total_width, max_height_child)
+                    }
+                };
+            }
+        }
+
+        // Leaf component: render it to measure
         let mut buffer = TerminalBuffer::new(max_width, max_height);
 
         if let Some(component) = self.components.get(id) {
@@ -897,6 +881,122 @@ impl<'a> ComponentTree<'a> {
             buffer.measure_content()
         } else {
             (0, 0)
+        }
+    }
+
+    /// Measure logical (unwrapped) bounds of a component
+    /// Renders to a very wide buffer to determine content dimensions without wrapping effects
+    fn measure_logical_bounds(&self, id: ComponentId) -> (u16, u16) {
+        // If this component has children, calculate logical bounds from children
+        if let Some(child_ids) = self.children(id) {
+            if !child_ids.is_empty() {
+                let formatting = self.formatting.get(id).copied().unwrap_or_default();
+
+                return match formatting.layout_mode {
+                    LayoutMode::VerticalSplit => {
+                        // Children are stacked vertically: width is max, height is sum
+                        let mut total_height = 0u16;
+                        let mut max_width_child = 0u16;
+
+                        for &child_id in &child_ids {
+                            let (child_width, child_height) = self.measure_logical_bounds(child_id);
+                            max_width_child = max_width_child.max(child_width);
+                            total_height = total_height.saturating_add(child_height);
+                        }
+
+                        (max_width_child, total_height)
+                    }
+                    LayoutMode::HorizontalSplit => {
+                        // Children are laid out horizontally: width is sum, height is max
+                        let mut total_width = 0u16;
+                        let mut max_height_child = 0u16;
+
+                        for &child_id in &child_ids {
+                            let (child_width, child_height) = self.measure_logical_bounds(child_id);
+                            total_width = total_width.saturating_add(child_width);
+                            max_height_child = max_height_child.max(child_height);
+                        }
+
+                        (total_width, max_height_child)
+                    }
+                };
+            }
+        }
+
+        // Leaf component: render to very wide buffer to get logical dimensions without wrapping
+        let mut buffer = TerminalBuffer::new(u16::MAX, u16::MAX);
+
+        if let Some(component) = self.components.get(id) {
+            let _ = component.render(&mut buffer);
+            buffer.measure_content()
+        } else {
+            (0, 0)
+        }
+    }
+
+    /// Calculate the visual (wrapped) height of a component at a given render width
+    /// This tells us how many screen rows the component occupies when rendered
+    fn get_visual_height(&self, id: ComponentId, render_width: u16) -> u16 {
+        let mut buffer = TerminalBuffer::new(render_width, u16::MAX);
+
+        if let Some(component) = self.components.get(id) {
+            let _ = component.render(&mut buffer);
+
+            // Count visual rows by tracking when we exceed render_width
+            let mut visual_height = 1u16;
+            let mut current_x = 0u16;
+
+            for cmd in buffer.commands() {
+                match cmd {
+                    TerminalCommand::Print(_ch) => {
+                        current_x += 1;
+                        if current_x >= render_width {
+                            visual_height += 1;
+                            current_x = 0;
+                        }
+                    }
+                    TerminalCommand::Newline => {
+                        visual_height += 1;
+                        current_x = 0;
+                    }
+                    _ => {}
+                }
+            }
+
+            visual_height
+        } else {
+            1
+        }
+    }
+
+    /// Get the actual width of a specific row when the component is rendered at the given width
+    /// Used for determining which wrapped row a logical column falls into
+    fn get_row_width(&self, id: ComponentId, row: u16, render_width: u16) -> u16 {
+        // Render the component to extract its text content
+        let mut buffer = TerminalBuffer::new(render_width, u16::MAX);
+
+        if let Some(component) = self.components.get(id) {
+            let _ = component.render(&mut buffer);
+
+            // Extract text from buffer commands
+            let mut text = String::new();
+            for cmd in buffer.commands() {
+                match cmd {
+                    TerminalCommand::Print(ch) => text.push(*ch),
+                    TerminalCommand::Newline => text.push('\n'),
+                    _ => {}
+                }
+            }
+
+            // Split the text by width and return the width of the specified row
+            let rows = split_by_width(&text, render_width);
+            if let Some(row_content) = rows.get(row as usize) {
+                row_content.width() as u16
+            } else {
+                render_width
+            }
+        } else {
+            render_width
         }
     }
 
@@ -1078,9 +1178,10 @@ impl<'a> ComponentTree<'a> {
             let formatting = self.formatting.get(*child_id).copied().unwrap_or_default();
             let component_width = widths[i];
             let component_height = if matches!(formatting.preferred_height, Measurement::Content) {
-                // Measure the component's rendered content
+                // Measure the component's rendered content with the actual component width
+                // This is critical for components with overflow_x: Wrap to calculate correct height
                 let (_, measured_height) =
-                    self.measure_component(*child_id, available_width, available_height);
+                    self.measure_component(*child_id, component_width, available_height);
                 measured_height
             } else {
                 self.calculate_size(formatting.preferred_height, available_height)
@@ -1259,22 +1360,10 @@ impl<'a> ComponentTree<'a> {
         let rect = self.rects.get(id).copied().unwrap_or_default();
         let formatting = self.formatting.get(id).copied().unwrap_or_default();
 
-        // Initialize cursor to minimum bounds on first render
+        // Cursor starts at (0, 0) by default
         if !self.cursor_initialized.get(id).copied().unwrap_or(false) {
-            if let Some(component) = self.components.get(id) {
-                // Get full content bounds including children
-                let (content_width, content_height) = self.get_content_bounds(id);
-                let (min_col, _, min_row, _) =
-                    component.cursor_bounds(content_width, content_height, &formatting);
-                if let Some(col_slot) = self.cursor_col.get_mut(id) {
-                    *col_slot = min_col;
-                }
-                if let Some(row_slot) = self.cursor_row.get_mut(id) {
-                    *row_slot = min_row;
-                }
-                if let Some(init_slot) = self.cursor_initialized.get_mut(id) {
-                    *init_slot = true;
-                }
+            if let Some(init_slot) = self.cursor_initialized.get_mut(id) {
+                *init_slot = true;
             }
         }
 
@@ -1291,114 +1380,95 @@ impl<'a> ComponentTree<'a> {
         if id == self.focus {
             let last_cursor_row = self.last_cursor_row.get(id).copied().unwrap_or(0);
 
-            // Only auto-scroll if the cursor position changed (keyboard movement)
-            let cursor_moved = cursor_tree_row != last_cursor_row;
-
-            // Auto-scroll to keep cursor visible if component has Overflow::Scroll and cursor moved
-            if formatting.overflow_y == Overflow::Scroll && cursor_moved {
-                if let Some(component) = self.components.get(id) {
-                    // Get full content bounds including children
-                    let (content_width, content_height) = self.get_content_bounds(id);
-                    let (_min_col, _max_col, min_row, max_row) =
-                        component.cursor_bounds(content_width, content_height, &formatting);
-                    let mut new_scroll_y = scroll_y;
-                    let visible_height = rect.height as usize;
-
-                    // Only scroll if cursor is within valid bounds
-                    if cursor_tree_row >= min_row && cursor_tree_row <= max_row {
-                        if cursor_tree_row < scroll_y as u16 {
-                            // Cursor is above visible range, scroll up to show it
-                            new_scroll_y = cursor_tree_row as usize;
-                        } else if cursor_tree_row >= (scroll_y + visible_height) as u16 {
-                            // Cursor is below visible range, scroll down to show it at bottom
-                            new_scroll_y =
-                                (cursor_tree_row as usize).saturating_sub(visible_height - 1);
-                        }
-                    }
-
-                    // Update scroll and mark as dirty for re-render
-                    if new_scroll_y != scroll_y {
-                        final_scroll_y = new_scroll_y;
-                        if let Some(scroll) = self.scroll_y.get_mut(id) {
-                            *scroll = new_scroll_y;
-                        }
-                        self.mark_dirty(id);
-                        // Also mark all children as dirty so they get re-rendered with new positions
-                        if let Some(child_ids) = self.children(id) {
-                            for child_id in child_ids {
-                                self.mark_dirty(child_id);
-                            }
-                        }
-                    }
-                }
-            }
-
             // Clamp cursor to visible range (for mouse scrolling)
             if formatting.overflow_y == Overflow::Scroll {
-                if let Some(component) = self.components.get(id) {
-                    // Get full content bounds including children
-                    let (content_width, content_height) = self.get_content_bounds(id);
-                    let (_min_col, _max_col, min_row, max_row) =
-                        component.cursor_bounds(content_width, content_height, &formatting);
-                    let visible_height = rect.height as usize;
+                let (_, logical_height) = self.measure_logical_bounds(id);
+                let min_row = 0u16;
+                let max_row = logical_height.saturating_sub(1);
+                let visible_height = rect.height as usize;
 
-                    // Only clamp if cursor is within valid bounds
-                    if cursor_tree_row >= min_row && cursor_tree_row <= max_row {
-                        // If cursor is above visible range, move it to the top
-                        if cursor_tree_row < final_scroll_y as u16 {
-                            if let Some(cursor) = self.cursor_row.get_mut(id) {
-                                *cursor = final_scroll_y as u16;
-                            }
-                            self.mark_dirty(id);
-                        } else if cursor_tree_row >= (final_scroll_y + visible_height) as u16 {
-                            // If cursor is below visible range, move it to the bottom
-                            let new_cursor_row =
-                                (final_scroll_y + visible_height.saturating_sub(1)) as u16;
-                            if let Some(cursor) = self.cursor_row.get_mut(id) {
-                                *cursor = new_cursor_row;
-                            }
-                            self.mark_dirty(id);
+                // Only clamp if cursor is within valid bounds
+                if cursor_tree_row >= min_row && cursor_tree_row <= max_row {
+                    // If cursor is above visible range, move it to the top
+                    if cursor_tree_row < final_scroll_y as u16 {
+                        if let Some(cursor) = self.cursor_row.get_mut(id) {
+                            *cursor = final_scroll_y as u16;
                         }
+                        self.mark_dirty(id);
+                    } else if cursor_tree_row >= (final_scroll_y + visible_height) as u16 {
+                        // If cursor is below visible range, move it to the bottom
+                        let new_cursor_row =
+                            (final_scroll_y + visible_height.saturating_sub(1)) as u16;
+                        if let Some(cursor) = self.cursor_row.get_mut(id) {
+                            *cursor = new_cursor_row;
+                        }
+                        self.mark_dirty(id);
                     }
                 }
             }
         }
 
-        // Scroll focused children into view
-        if formatting.overflow_y == Overflow::Scroll {
+        // Scroll focused children into view (accounting for wrapped children's visual heights)
+        if formatting.overflow_y == Overflow::Scroll && formatting.layout_mode == LayoutMode::VerticalSplit {
             if let Some(child_ids) = self.children(id) {
+                // Build a map of child index to visual row position
+                let mut child_visual_rows = Vec::new();
+                let mut current_visual_row = 0;
+
+                for child_id in &child_ids {
+                    child_visual_rows.push(current_visual_row);
+                    if let Some(child_rect) = self.rects.get(*child_id) {
+                        current_visual_row += child_rect.height as usize;
+                    }
+                }
+
                 // Find if any child is in the focus path
                 for focus_id in &self.focus_path {
-                    if let Some(pos) = child_ids.iter().position(|&cid| cid == *focus_id) {
-                        if let Some(child_rect) = self.rects.get(child_ids[pos]) {
-                            let child_y = child_rect.y as usize;
-                            let child_height = child_rect.height as usize;
-                            let visible_height = rect.height as usize;
+                    if let Some(child_index) = child_ids.iter().position(|&cid| cid == *focus_id) {
+                        // Get the visual row position of the focused child
+                        let focused_visual_start = child_visual_rows[child_index];
+                        let focused_visual_end = if let Some(child_rect) = self.rects.get(child_ids[child_index]) {
+                            focused_visual_start + child_rect.height as usize
+                        } else {
+                            focused_visual_start + 1
+                        };
 
-                            // Check if child is outside visible range
-                            if child_y < final_scroll_y {
-                                // Child is above visible range, scroll up to show it
-                                final_scroll_y = child_y;
-                                if let Some(scroll) = self.scroll_y.get_mut(id) {
-                                    *scroll = final_scroll_y;
-                                }
-                                self.mark_dirty(id);
-                                // Mark all children as dirty
-                                for child_id in &child_ids {
-                                    self.mark_dirty(*child_id);
-                                }
-                            } else if child_y + child_height > final_scroll_y + visible_height {
-                                // Child is below visible range, scroll down to show it
-                                final_scroll_y =
-                                    (child_y + child_height).saturating_sub(visible_height);
-                                if let Some(scroll) = self.scroll_y.get_mut(id) {
-                                    *scroll = final_scroll_y;
-                                }
-                                self.mark_dirty(id);
-                                // Mark all children as dirty
-                                for child_id in &child_ids {
-                                    self.mark_dirty(*child_id);
-                                }
+                        // Calculate current visible visual row range
+                        let visible_visual_start = child_visual_rows.get(final_scroll_y).copied().unwrap_or(0);
+                        let visible_visual_end = visible_visual_start + rect.height as usize;
+
+                        // Check if focused child is outside visible range
+                        if focused_visual_start < visible_visual_start {
+                            // Child is above visible range, scroll to show it
+                            final_scroll_y = child_index;
+                            if let Some(scroll) = self.scroll_y.get_mut(id) {
+                                *scroll = final_scroll_y;
+                            }
+                            self.mark_dirty(id);
+                            for child_id in &child_ids {
+                                self.mark_dirty(*child_id);
+                            }
+                        } else if focused_visual_start >= visible_visual_end {
+                            // Child is completely below visible range, scroll incrementally
+                            final_scroll_y = final_scroll_y + 1;
+                            if let Some(scroll) = self.scroll_y.get_mut(id) {
+                                *scroll = final_scroll_y;
+                            }
+                            self.mark_dirty(id);
+                            for child_id in &child_ids {
+                                self.mark_dirty(*child_id);
+                            }
+                        } else if focused_visual_start < visible_visual_end && focused_visual_end > visible_visual_end {
+                            // Child starts within visible range but extends past the boundary
+                            // This means it would be clipped by atomic rendering
+                            // Scroll incrementally by moving to the next child
+                            final_scroll_y = final_scroll_y + 1;
+                            if let Some(scroll) = self.scroll_y.get_mut(id) {
+                                *scroll = final_scroll_y;
+                            }
+                            self.mark_dirty(id);
+                            for child_id in &child_ids {
+                                self.mark_dirty(*child_id);
                             }
                         }
                         break; // Only scroll for the first focused child in this parent
@@ -1438,19 +1508,17 @@ impl<'a> ComponentTree<'a> {
                 if !buffer.commands().is_empty() {
                     stdout.execute(ResetColor)?;
 
-                    // Use skip_lines override if available (set by parent during child rendering)
-                    let skip_lines = self.skip_lines_override.get(&id).copied().unwrap_or(0);
                     let max_lines = rect.height;
 
                     match formatting.overflow_x {
                         Overflow::Wrap => {
                             self.composite_buffer_wrap(
-                                stdout, &buffer, rect.x, rect.y, skip_lines, max_lines,
+                                stdout, &buffer, rect.x, rect.y, 0, max_lines,
                             )?;
                         }
                         Overflow::Hide | Overflow::Scroll => {
                             self.composite_buffer_hide(
-                                stdout, &buffer, rect.x, rect.y, skip_lines, max_lines,
+                                stdout, &buffer, rect.x, rect.y, 0, max_lines,
                             )?;
                         }
                     }
@@ -1509,104 +1577,144 @@ impl<'a> ComponentTree<'a> {
             let parent_scroll_y = self.scroll_y.get(id).copied().unwrap_or(0);
             let parent_rect = self.rects.get(id).copied().unwrap_or_default();
 
-            // Mark only visible children as dirty so they render with updated positions
-            // This applies to all components with children, not just scrollable ones
-            let visible_start = parent_scroll_y;
-            let visible_end = parent_scroll_y + parent_rect.height as usize;
-
-            for child_id in child_ids_vec.iter() {
-                if let Some(child_rect) = self.rects.get(*child_id) {
-                    let original_y = child_rect.y as usize;
-                    let child_height = child_rect.height as usize;
-                    let child_end = original_y + child_height;
-
-                    // Mark child as dirty only if it's at least partially visible
-                    if child_end > visible_start && original_y < visible_end {
-                        self.mark_dirty(*child_id);
+            // Mark visible children as dirty
+            if formatting.layout_mode == LayoutMode::VerticalSplit {
+                // For vertical layouts, mark children based on scroll position
+                let mut current_y = parent_rect.y;
+                for (child_index, child_id) in child_ids_vec.iter().enumerate() {
+                    // Skip children before scroll position
+                    if child_index < parent_scroll_y {
+                        continue;
                     }
+
+                    // Get child height
+                    if let Some(child_rect) = self.rects.get(*child_id) {
+                        let child_height = child_rect.height as u16;
+
+                        // Stop if child would render below parent
+                        if current_y >= parent_rect.y + parent_rect.height {
+                            break;
+                        }
+
+                        // Mark as dirty if it might be visible
+                        self.mark_dirty(*child_id);
+
+                        current_y += child_height;
+                    }
+                }
+            } else {
+                // For horizontal layouts, mark all children as dirty
+                for child_id in child_ids_vec.iter() {
+                    self.mark_dirty(*child_id);
                 }
             }
 
-            // Limit scrolling: allow scrolling until the final line appears at the top of the view region
+            // Limit scrolling: prevent scrolling past the last child
             if formatting.overflow_y == Overflow::Scroll && !child_ids_vec.is_empty() {
-                // Get the y position of the last child (children are in order)
-                if let Some(last_child_id) = child_ids_vec.last() {
-                    if let Some(child_rect) = self.rects.get(*last_child_id) {
-                        let max_child_y = child_rect.y as usize;
+                // Maximum scroll index is the number of children
+                let max_scroll = child_ids_vec.len();
 
-                        // Max scroll is the y position of the last child
-                        // This allows scrolling until the final line appears at the top
-                        if parent_scroll_y > max_child_y {
-                            if let Some(scroll) = self.scroll_y.get_mut(id) {
-                                *scroll = max_child_y;
-                            }
-                        }
+                // Clamp scroll to valid range
+                if parent_scroll_y >= max_scroll {
+                    if let Some(scroll) = self.scroll_y.get_mut(id) {
+                        *scroll = max_scroll.saturating_sub(1);
                     }
                 }
             }
 
             // Track the lowest point rendered by children
             let mut lowest_rendered_y: Option<u16> = None;
+            let mut current_screen_y = parent_rect.y;
 
-            for child_id in child_ids_vec {
-                // Get child rect info without holding a borrow
+            for (child_index, child_id) in child_ids_vec.iter().enumerate() {
+                // For vertical layouts, skip children before the scroll position
+                if formatting.layout_mode == LayoutMode::VerticalSplit && child_index < final_scroll_y {
+                    continue;
+                }
+
+                // Get child height and original Y position
                 let (original_y, child_height) = {
-                    if let Some(child_rect) = self.rects.get(child_id) {
-                        (child_rect.y as usize, child_rect.height as usize)
+                    if let Some(child_rect) = self.rects.get(*child_id) {
+                        (child_rect.y, child_rect.height as usize)
                     } else {
                         continue;
                     }
                 };
 
-                // Check if child is visible within the scrollable area
-                // Child is visible if it overlaps with [scroll_y, scroll_y + parent_height)
-                let visible_start = parent_scroll_y;
-                let visible_end = parent_scroll_y + parent_rect.height as usize;
-                let child_end = original_y + child_height;
-
-                // Skip if completely above or below visible range
-                if child_end <= visible_start || original_y >= visible_end {
-                    continue;
+                // Stop if this child would render completely below the parent (vertical layouts only)
+                if formatting.layout_mode == LayoutMode::VerticalSplit && current_screen_y >= parent_rect.y + parent_rect.height {
+                    break;
                 }
 
-                // Calculate screen position: parent.y + (child.y - scroll_y)
-                let screen_y = if original_y >= parent_scroll_y {
-                    parent_rect.y + (original_y - parent_scroll_y) as u16
-                } else {
-                    // Child partially above scroll point, render at parent's top
-                    parent_rect.y
-                };
+                // Stop if child doesn't fit completely in visible range (atomic rendering, vertical only)
+                if formatting.layout_mode == LayoutMode::VerticalSplit && current_screen_y + child_height as u16 > parent_rect.y + parent_rect.height {
+                    break;
+                }
 
-                // Update lowest rendered point
-                let child_screen_bottom = screen_y + child_height as u16;
-                lowest_rendered_y = Some(match lowest_rendered_y {
-                    None => child_screen_bottom,
-                    Some(current_lowest) => current_lowest.max(child_screen_bottom),
-                });
+                // For vertical layouts, adjust screen position based on scroll
+                if formatting.layout_mode == LayoutMode::VerticalSplit {
+                    let child_screen_bottom = current_screen_y + child_height as u16;
 
-                // Calculate skip_lines before adjusting position
-                let skip_lines = if original_y < parent_scroll_y {
-                    (parent_scroll_y - original_y) as u16
-                } else {
-                    0
-                };
+                    // Update lowest rendered point
+                    lowest_rendered_y = Some(match lowest_rendered_y {
+                        None => child_screen_bottom,
+                        Some(current_lowest) => current_lowest.max(child_screen_bottom),
+                    });
 
-                // Temporarily adjust child's y position for rendering
-                {
-                    if let Some(child_rect_mut) = self.rects.get_mut(child_id) {
-                        child_rect_mut.y = screen_y;
+                    // Temporarily adjust child's y position for rendering
+                    {
+                        if let Some(child_rect_mut) = self.rects.get_mut(*child_id) {
+                            child_rect_mut.y = current_screen_y;
+                        }
+                    } // Drop the mutable borrow
+
+                    // Render child
+                    let _ = self.render_node(*child_id, stdout);
+
+                    // Restore original y position for next frame
+                    {
+                        if let Some(child_rect_mut) = self.rects.get_mut(*child_id) {
+                            child_rect_mut.y = original_y;
+                        }
                     }
-                } // Drop the mutable borrow
 
-                // Store skip_lines override before rendering
-                self.skip_lines_override.insert(child_id, skip_lines);
-                let _ = self.render_node(child_id, stdout);
-                self.skip_lines_override.remove(&child_id);
+                    // Advance screen position for next child
+                    current_screen_y += child_height as u16;
+                } else {
+                    // For horizontal layouts, convert relative rect positions to absolute screen positions
+                    let (original_x, child_width) = {
+                        if let Some(child_rect) = self.rects.get(*child_id) {
+                            (child_rect.x, child_rect.width)
+                        } else {
+                            continue;
+                        }
+                    };
 
-                // Restore original y position for next frame
-                {
-                    if let Some(child_rect_mut) = self.rects.get_mut(child_id) {
-                        child_rect_mut.y = original_y as u16;
+                    let child_screen_y = parent_rect.y + original_y as u16;
+                    let child_screen_x = parent_rect.x + original_x;
+                    let child_screen_bottom = child_screen_y + child_height as u16;
+                    lowest_rendered_y = Some(match lowest_rendered_y {
+                        None => child_screen_bottom,
+                        Some(current_lowest) => current_lowest.max(child_screen_bottom),
+                    });
+
+                    // Temporarily adjust child's position to absolute screen coordinates
+                    {
+                        if let Some(child_rect_mut) = self.rects.get_mut(*child_id) {
+                            child_rect_mut.x = child_screen_x;
+                            child_rect_mut.y = child_screen_y;
+                        }
+                    }
+
+                    // Render child
+                    let _ = self.render_node(*child_id, stdout);
+
+                    // Restore original position for next frame
+                    {
+                        if let Some(child_rect_mut) = self.rects.get_mut(*child_id) {
+                            child_rect_mut.x = original_x;
+                            child_rect_mut.y = original_y as u16;
+                        }
                     }
                 }
             }

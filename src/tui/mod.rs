@@ -11,7 +11,7 @@ pub mod terminal_buffer;
 pub mod text;
 pub mod tree;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum LayoutMode {
     VerticalSplit,
     HorizontalSplit,
@@ -165,25 +165,6 @@ pub trait Component {
         _commands: &mut tree::ComponentCommands,
     ) -> Result<bool> {
         Ok(false)
-    }
-
-    /// Return the cursor bounds allowed for this component
-    /// (min_col, max_col, min_row, max_row)
-    fn cursor_bounds(
-        &self,
-        width: u16,
-        height: u16,
-        _formatting: &Formatting,
-    ) -> (u16, u16, u16, u16) {
-        (0, width.saturating_sub(1), 0, height.saturating_sub(1))
-    }
-
-    /// Get the actual content width for a specific row when rendered at a given width
-    /// This is used for cursor navigation to respect per-line content bounds
-    /// For most components, this is the same as the render width
-    /// Components with complex wrapping (like TextComponent) can override to return per-row widths
-    fn get_row_width(&self, _row: u16, render_width: u16) -> u16 {
-        render_width
     }
 
     /// Provide default formatting for this component

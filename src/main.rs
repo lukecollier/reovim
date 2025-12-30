@@ -1,3 +1,4 @@
+mod color;
 mod event;
 mod tui;
 
@@ -169,6 +170,7 @@ impl Buffer {
 
         loop {
             self.dimensions = crossterm::terminal::size()?;
+            tree.layout(self.dimensions.0, self.dimensions.1);
             tree.render(&mut stdout)?;
             stdout.flush()?;
 
