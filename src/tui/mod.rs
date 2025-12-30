@@ -178,6 +178,14 @@ pub trait Component {
         (0, width.saturating_sub(1), 0, height.saturating_sub(1))
     }
 
+    /// Get the actual content width for a specific row when rendered at a given width
+    /// This is used for cursor navigation to respect per-line content bounds
+    /// For most components, this is the same as the render width
+    /// Components with complex wrapping (like TextComponent) can override to return per-row widths
+    fn get_row_width(&self, _row: u16, render_width: u16) -> u16 {
+        render_width
+    }
+
     /// Provide default formatting for this component
     fn default_formatting(&self) -> Formatting {
         Formatting::default()

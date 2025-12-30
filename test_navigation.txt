@@ -1,0 +1,7 @@
+This is a test file for the navigation system.
+Line 1: Testing horizontal navigation (hjkl keys)
+Line 2: Testing vertical navigation between lines
+Line 3: Let's verify cursor positioning works correctly
+Line 4: Multi-line text should allow wrapping when lines are long
+Line 5: This is the fifth line of test content for our navigation system
+Line 6: Final test line to ensure everything works as expected

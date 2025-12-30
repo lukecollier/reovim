@@ -17,10 +17,7 @@ use crossterm::{
 use tracing::info;
 use tracing_subscriber::EnvFilter;
 
-use crate::tui::{
-    editor::Editor,
-    tree::ComponentTree,
-};
+use crate::tui::{editor::Editor, tree::ComponentTree};
 
 fn main() -> Result<()> {
     let mut args = std::env::args();
@@ -112,8 +109,6 @@ impl<'a> Index<Range<usize>> for Line {
         &self.contents[start..end]
     }
 }
-
-pub enum Command {}
 
 struct Buffer {
     file_path: Option<PathBuf>,
@@ -209,65 +204,4 @@ impl Buffer {
         }
         Ok(())
     }
-
-    // old run
-    // fn run(&mut self) -> Result<()> {
-    //     let mut stdout = stdout();
-    //     self.dimensions = crossterm::terminal::size()?;
-    //     self.render_range = 0..self.dimensions.1.saturating_sub(2) as usize;
-
-    //     let file_name = self
-    //         .file_path
-    //         .as_ref()
-    //         .and_then(|path| path.file_name())
-    //         .and_then(|os_string| os_string.to_str())
-    //         .unwrap_or("[no file]");
-
-    //     let root_frame = Frame::new(LayoutMode::VerticalSplit);
-    //     let mut tree = ComponentTree::new(tui::tree::ComponentNode::Frame(root_frame));
-    //     let editor_frame = Frame::new(LayoutMode::HorizontalSplit);
-    //     let editor_formatting = Formatting {
-    //         preferred_width: Measurement::Percent(100),
-    //         preferred_height: Measurement::Fill, // Leave room for status line
-    //         ..Formatting::default()
-    //     };
-    //     let editor_frame_id = tree.add_child_with_formatting(
-    //         0,
-    //         tui::tree::ComponentNode::Frame(editor_frame),
-    //         editor_formatting,
-    //     )?;
-    //     let text = TextComponent::new(&self.contents, self.dimensions.0);
-    //     tree.add_child(editor_frame_id, ComponentNode::Text(text))?;
-
-    //     let status_line = StatusComponent::new(file_name);
-    //     tree.add_child(0, ComponentNode::Status(status_line))?;
-
-    //     loop {
-    //         self.dimensions = crossterm::terminal::size()?;
-    //         tree.layout(self.dimensions.0, self.dimensions.1);
-    //         tree.render(&mut stdout)?;
-    //         stdout.flush()?;
-
-    //         let crossterm_event = crossterm::event::read().expect("failed to read event");
-    //         // nowe we handle them events
-    //         match crossterm_event {
-    //             crossterm::event::Event::FocusGained => {}
-    //             crossterm::event::Event::FocusLost => {}
-    //             crossterm::event::Event::Key(key_event) => {
-    //                 if key_event.code.is_char('u') && key_event.modifiers == KeyModifiers::CONTROL {
-    //                     break;
-    //                 }
-    //                 tree.update(event::ReovimEvent::Key(key_event))?;
-    //             }
-    //             crossterm::event::Event::Mouse(mouse_event) => {
-    //                 tree.update(event::ReovimEvent::Mouse(mouse_event))?
-    //             }
-    //             crossterm::event::Event::Paste(_) => {}
-    //             crossterm::event::Event::Resize(x, y) => {
-    //                 tree.update(event::ReovimEvent::Resize(x, y))?
-    //             }
-    //         }
-    //     }
-    //     Ok(())
-    // }
 }

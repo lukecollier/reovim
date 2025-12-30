@@ -118,13 +118,7 @@ impl<'a> ComponentCommands<'a> {
 
     /// Set cursor position (col, row) for the component
     pub fn set_cursor(&mut self, col: u16, row: u16) {
-        // Get rect dimensions, formatting, and cursor bounds from the component
-        let rect = self
-            .tree
-            .rects
-            .get(self.self_id)
-            .copied()
-            .unwrap_or_default();
+        // Get formatting and cursor bounds from the component
         let formatting = self
             .tree
             .formatting
@@ -155,23 +149,17 @@ impl<'a> ComponentCommands<'a> {
     }
 
     /// Move cursor by the given offset (col_delta, row_delta)
-    /// Implements hierarchical navigation:
-    /// - In VerticalSplit: Up/Down = move between children, Left/Right = wrap within child
-    /// - In HorizontalSplit: Left/Right = move between children, Up/Down = wrap within child
+    /// Cursors are stored relative to each component
+    /// Navigation is simple: move within bounds, hit boundary -> navigate siblings
     pub fn move_cursor(&mut self, col_delta: i32, row_delta: i32) {
-        // If a deeper component is focused (this component is an ancestor),
-        // work with the deepest focused component instead
+        // Get the deepest focused component
         let current_id = if !self.tree.focus_path.is_empty() {
-            let deepest_focused = *self.tree.focus_path.last().unwrap();
-            if deepest_focused != self.self_id {
-                // Use the deepest focused component for movement
-                deepest_focused
-            } else {
-                self.self_id
-            }
+            *self.tree.focus_path.last().unwrap()
         } else {
             self.self_id
         };
+
+        let rect = self.tree.rects.get(current_id).copied().unwrap_or_default();
         let formatting = self
             .tree
             .formatting
@@ -179,16 +167,24 @@ impl<'a> ComponentCommands<'a> {
             .copied()
             .unwrap_or_default();
 
-        // For leaf components, measure actual content width; for containers, use full content bounds
-        let (content_width, content_height) = if self.tree.children(current_id).map_or(true, |c| c.is_empty()) {
-            // Leaf component - measure actual rendered content
-            self.tree.measure_component(current_id, u16::MAX, u16::MAX)
+        // Get current cursor position
+        let current_col = self.tree.cursor_col.get(current_id).copied().unwrap_or(0);
+        let current_row = self.tree.cursor_row.get(current_id).copied().unwrap_or(0);
+
+        // Measure content to get bounds
+        let (content_width, content_height) = if self
+            .tree
+            .children(current_id)
+            .map_or(true, |c| c.is_empty())
+        {
+            // Leaf component - measure at actual render width
+            self.tree
+                .measure_component(current_id, rect.width, rect.height)
         } else {
-            // Container with children - use full content bounds
+            // Container - use content bounds
             self.tree.get_content_bounds(current_id)
         };
 
-        // Get cursor bounds from the component
         let (min_col, max_col, min_row, max_row) = self
             .tree
             .components
@@ -196,36 +192,53 @@ impl<'a> ComponentCommands<'a> {
             .map(|comp| comp.cursor_bounds(content_width, content_height, &formatting))
             .unwrap_or((0, u16::MAX, 0, u16::MAX));
 
-        // First, check if we can navigate within this component's children
-        let current_formatting = self
-            .tree
-            .formatting
-            .get(current_id)
-            .copied()
-            .unwrap_or_default();
+        // Try to move within current component
+        let new_col = if col_delta > 0 {
+            current_col.saturating_add(col_delta as u16)
+        } else if col_delta < 0 {
+            current_col.saturating_sub((-col_delta) as u16)
+        } else {
+            current_col
+        };
 
-        let can_navigate_current_children = matches!(
-            (
-                current_formatting.layout_mode,
-                col_delta != 0,
-                row_delta != 0
-            ),
-            (LayoutMode::VerticalSplit, false, true) | // Up/Down in VerticalSplit
-            (LayoutMode::HorizontalSplit, true, false) // Left/Right in HorizontalSplit
-        ) && self
-            .tree
-            .children(current_id)
-            .map_or(false, |c| !c.is_empty());
+        let new_row = if row_delta > 0 {
+            current_row.saturating_add(row_delta as u16)
+        } else if row_delta < 0 {
+            current_row.saturating_sub((-row_delta) as u16)
+        } else {
+            current_row
+        };
 
-        if can_navigate_current_children {
-            // Navigate within current component's children
-            self.navigate_children(current_id, col_delta, row_delta);
+        // Detect if saturation occurred (cursor didn't move in the requested direction)
+        let trying_to_move_up_but_stayed = row_delta < 0 && new_row == current_row;
+        let trying_to_move_down_but_stayed = row_delta > 0 && new_row == current_row;
+        let trying_to_move_left_but_stayed = col_delta < 0 && new_col == current_col;
+        let trying_to_move_right_but_stayed = col_delta > 0 && new_col == current_col;
+        let at_boundary = trying_to_move_up_but_stayed
+            || trying_to_move_down_but_stayed
+            || trying_to_move_left_but_stayed
+            || trying_to_move_right_but_stayed;
+
+        // Check if new position is within bounds AND not at a boundary trying to go past it
+        if !at_boundary
+            && new_col >= min_col
+            && new_col <= max_col
+            && new_row >= min_row
+            && new_row <= max_row
+        {
+            // Move is valid within component
+            if let Some(col_slot) = self.tree.cursor_col.get_mut(current_id) {
+                *col_slot = new_col;
+            }
+            if let Some(row_slot) = self.tree.cursor_row.get_mut(current_id) {
+                *row_slot = new_row;
+            }
+            self.tree.mark_dirty(current_id);
             return;
         }
 
-        // Otherwise, check if we can navigate to siblings
+        // At boundary - try to navigate to siblings
         let parent_id = self.tree.parent(current_id).and_then(|p| p);
-
         if let Some(parent) = parent_id {
             let parent_layout = self
                 .tree
@@ -235,101 +248,77 @@ impl<'a> ComponentCommands<'a> {
                 .unwrap_or_default()
                 .layout_mode;
 
-            let is_child_nav = matches!(
+            // Check if this navigation direction makes sense for parent's layout
+            let should_navigate_siblings = matches!(
                 (parent_layout, col_delta != 0, row_delta != 0),
                 (LayoutMode::VerticalSplit, false, true) | // Up/Down in VerticalSplit
                 (LayoutMode::HorizontalSplit, true, false) // Left/Right in HorizontalSplit
             );
 
-            if is_child_nav {
-                // Navigate between sibling children
+            if should_navigate_siblings {
+                // Update parent's cursor_col to current position so next sibling knows which column to use
+                if let Some(col_slot) = self.tree.cursor_col.get_mut(parent) {
+                    *col_slot = current_col;
+                }
                 self.navigate_siblings(parent, col_delta, row_delta);
                 return;
             }
         }
 
-        // Navigate within wrapped content of current component
-        self.navigate_within_component(
-            current_id, col_delta, row_delta, 0, min_col, max_col, min_row, max_row,
-        );
-    }
+        // Clamp to boundaries and stay in component
+        let clamped_col = new_col.max(min_col).min(max_col);
+        let clamped_row = new_row.max(min_row).min(max_row);
 
-    /// Navigate between children of the current component
-    fn navigate_children(&mut self, parent_id: ComponentId, col_delta: i32, row_delta: i32) {
-        if let Some(children) = self.tree.children(parent_id) {
-            if children.is_empty() {
-                return;
-            }
-
-            // Find current position in children by looking for the currently focused child
-            // Use the deepest focused child in the focus path that's a child of this parent
-            let mut current_pos: i32 = -1;
-            for focus_id in &self.tree.focus_path {
-                if let Some(pos) = children.iter().position(|&id| id == *focus_id) {
-                    current_pos = pos as i32;
-                    break; // Use the first (closest) one found
-                }
-            }
-
-            // Determine next child based on movement direction
-            let next_pos = if row_delta > 0 {
-                ((current_pos + 1).max(0) as usize).min(children.len() - 1)
-            } else if row_delta < 0 {
-                (current_pos - 1).max(0) as usize
-            } else if col_delta > 0 {
-                ((current_pos + 1).max(0) as usize).min(children.len() - 1)
-            } else if col_delta < 0 {
-                (current_pos - 1).max(0) as usize
-            } else {
-                return;
-            };
-
-            // Only move if position changed
-            if next_pos as i32 != current_pos {
-                let next_id = children[next_pos];
-
-                // Try to enter the next child and find the actual descendant to focus
-                if self.try_enter_component(next_id) {
-                    // Find the deepest focusable descendant to actually focus on
-                    let focus_id = self.find_focusable_descendant(next_id);
-
-                    // Update current focus and focus path
-                    let old_id = self.self_id;
-                    self.self_id = focus_id;
-                    self.tree.focus = focus_id;
-                    self.tree.focus_path = self.tree.build_focus_path(focus_id);
-                    self.tree.mark_dirty(focus_id);
-                    self.tree.mark_dirty(old_id);
-                }
-            }
+        if let Some(col_slot) = self.tree.cursor_col.get_mut(current_id) {
+            *col_slot = clamped_col;
         }
+        if let Some(row_slot) = self.tree.cursor_row.get_mut(current_id) {
+            *row_slot = clamped_row;
+        }
+        self.tree.mark_dirty(current_id);
     }
 
-    /// Navigate between sibling components
+    /// Set focus to a component and automatically descend to the first focusable child leaf
+    fn set_focus_with_descent(&mut self, component_id: ComponentId) {
+        // Find the deepest focusable descendant (automatically descends into first focusable child)
+        let focus_id = self.find_focusable_descendant(component_id);
+
+        // Update focus
+        self.self_id = focus_id;
+        self.tree.focus = focus_id;
+        self.tree.focus_path = self.tree.build_focus_path(focus_id);
+        self.tree.mark_dirty(focus_id);
+    }
+
+    /// Set focus to a component and automatically descend to the last focusable child leaf
+    fn set_focus_with_descent_to_last(&mut self, component_id: ComponentId) {
+        // Find the deepest focusable descendant (automatically descends into last focusable child)
+        let focus_id = self.find_focusable_descendant_last(component_id);
+
+        // Update focus
+        self.self_id = focus_id;
+        self.tree.focus = focus_id;
+        self.tree.focus_path = self.tree.build_focus_path(focus_id);
+        self.tree.mark_dirty(focus_id);
+    }
+
+    /// Navigate to next/previous sibling component
+    /// Updates parent's cursor_row to track which child is focused
     fn navigate_siblings(&mut self, parent_id: ComponentId, col_delta: i32, row_delta: i32) {
         if let Some(siblings) = self.tree.children(parent_id) {
             if siblings.is_empty() {
                 return;
             }
 
-            // Find current position in siblings by looking for the currently focused sibling
-            // Use the focused sibling from the focus path
-            let mut current_pos = 0;
-            for focus_id in &self.tree.focus_path {
-                if let Some(pos) = siblings.iter().position(|&id| id == *focus_id) {
-                    current_pos = pos;
-                    break; // Use the first (closest) one found
-                }
-            }
+            // Parent's cursor_row tracks which child is currently focused
+            let parent_col = self.tree.cursor_col.get(parent_id).copied().unwrap_or(0);
+            let parent_row = self.tree.cursor_row.get(parent_id).copied().unwrap_or(0);
 
             // Determine next sibling based on movement direction
-            let next_pos = if row_delta > 0 {
+            let current_pos = (parent_row as usize).min(siblings.len() - 1);
+            let next_pos = if row_delta > 0 || col_delta > 0 {
                 (current_pos + 1).min(siblings.len() - 1)
-            } else if row_delta < 0 {
-                current_pos.saturating_sub(1)
-            } else if col_delta > 0 {
-                (current_pos + 1).min(siblings.len() - 1)
-            } else if col_delta < 0 {
+            } else if row_delta < 0 || col_delta < 0 {
                 current_pos.saturating_sub(1)
             } else {
                 return;
@@ -339,17 +328,98 @@ impl<'a> ComponentCommands<'a> {
             if next_pos != current_pos {
                 let next_id = siblings[next_pos];
 
-                // Try to enter the next component and find the actual descendant to focus
-                if self.try_enter_component(next_id) {
-                    // Find the deepest focusable descendant to actually focus on
-                    let focus_id = self.find_focusable_descendant(next_id);
+                // Update parent's cursor to point to new child
+                if let Some(row_slot) = self.tree.cursor_row.get_mut(parent_id) {
+                    *row_slot = next_pos as u16;
+                }
 
-                    // Update current focus and focus path
-                    self.self_id = focus_id;
-                    self.tree.focus = focus_id;
-                    self.tree.focus_path = self.tree.build_focus_path(focus_id);
-                    self.tree.mark_dirty(focus_id);
-                    self.tree.mark_dirty(siblings[current_pos]);
+                // Try to focus the new component with automatic descent to first or last focusable child
+                if self.try_enter_component(next_id) {
+                    let is_moving_up = row_delta < 0 || col_delta < 0;
+
+                    if is_moving_up {
+                        // Moving up: descend to last focusable child
+                        self.set_focus_with_descent_to_last(next_id);
+                    } else {
+                        // Moving down: descend to first focusable child
+                        self.set_focus_with_descent(next_id);
+                    }
+
+                    // Get the focused component after descent
+                    let focus_id = self.tree.focus;
+                    let rect = self.tree.rects.get(focus_id).copied().unwrap_or_default();
+
+                    // Get the child's total content bounds
+                    let formatting = self
+                        .tree
+                        .formatting
+                        .get(focus_id)
+                        .copied()
+                        .unwrap_or_default();
+                    let (content_width, content_height) =
+                        if self.tree.children(focus_id).map_or(true, |c| c.is_empty()) {
+                            self.tree
+                                .measure_component(focus_id, rect.width, rect.height)
+                        } else {
+                            self.tree.get_content_bounds(focus_id)
+                        };
+
+                    let (_, max_col, _, max_row) = self
+                        .tree
+                        .components
+                        .get(focus_id)
+                        .map(|comp| comp.cursor_bounds(content_width, content_height, &formatting))
+                        .unwrap_or((0, u16::MAX, 0, u16::MAX));
+
+                    // Clamp column to child's total content width
+                    let clamped_col = parent_col.min(max_col);
+
+                    // Calculate target row based on movement direction and wrapped content
+                    let target_row = if is_moving_up {
+                        // When moving up: calculate which row the clamped_col falls into
+                        // by walking through wrapped rows until we reach the end
+                        let mut remaining_col = clamped_col;
+                        let mut target_row = 0u16;
+
+                        // Find which row the logical column falls into based on per-row widths
+                        loop {
+                            let row_width = self
+                                .tree
+                                .components
+                                .get(focus_id)
+                                .map(|comp| comp.get_row_width(target_row, rect.width))
+                                .unwrap_or(rect.width);
+
+                            if remaining_col < row_width {
+                                // Found the right row
+                                break;
+                            }
+
+                            remaining_col -= row_width;
+                            target_row += 1;
+
+                            // Safety check to prevent infinite loops
+                            if target_row > max_row {
+                                target_row = max_row;
+                                break;
+                            }
+                        }
+
+                        target_row
+                    } else {
+                        // When moving down, position cursor at the first row of the component
+                        0
+                    };
+
+                    // Set cursor position
+                    if let Some(col_slot) = self.tree.cursor_col.get_mut(focus_id) {
+                        *col_slot = clamped_col;
+                    }
+                    if let Some(row_slot) = self.tree.cursor_row.get_mut(focus_id) {
+                        *row_slot = target_row;
+                    }
+
+                    self.tree.mark_dirty(parent_id);
                 }
             }
         }
@@ -419,85 +489,42 @@ impl<'a> ComponentCommands<'a> {
         component_id
     }
 
-    /// Navigate within a component's wrapped content
-    fn navigate_within_component(
-        &mut self,
-        component_id: ComponentId,
-        col_delta: i32,
-        row_delta: i32,
-        _child_width: u16,
-        min_col: u16,
-        max_col: u16,
-        min_row: u16,
-        max_row: u16,
-    ) {
-        let current_col = self.tree.cursor_col.get(component_id).copied().unwrap_or(0);
-        let current_row = self.tree.cursor_row.get(component_id).copied().unwrap_or(0);
+    /// Find the actual descendant component to focus when entering a component from below
+    /// Like find_focusable_descendant but descends into the last focusable child instead of first
+    fn find_focusable_descendant_last(&self, component_id: ComponentId) -> ComponentId {
+        let formatting = self
+            .tree
+            .formatting
+            .get(component_id)
+            .copied()
+            .unwrap_or_default();
 
-        if col_delta != 0 {
-            // Measure actual content width of the leaf component without width constraints
-            // This gives us the true content width, not constrained by parent allocation
-            let (content_width, _) = self.tree.measure_component(component_id, u16::MAX, u16::MAX);
-            let clamped_max_col = (content_width as u16).saturating_sub(1).max(min_col);
-            let effective_max_col = max_col.min(clamped_max_col);
-
-            // Horizontal movement within wrapped content
-            let new_col = if col_delta < 0 {
-                current_col.saturating_sub((-col_delta) as u16)
-            } else {
-                current_col.saturating_add(col_delta as u16)
-            };
-
-            // Check if we're trying to move beyond content bounds
-            let trying_to_move_right_beyond = col_delta > 0 && new_col > effective_max_col;
-            let trying_to_move_left_beyond = col_delta < 0 && current_col == min_col;
-
-            // Try to wrap to next/previous line if applicable
-            let wrapped = if trying_to_move_right_beyond && current_row < max_row {
-                // Can wrap to next line
-                if let Some(col_slot) = self.tree.cursor_col.get_mut(component_id) {
-                    *col_slot = min_col;
+        // If this component is focusable, check if it has focusable children to descend into
+        if formatting.focusable {
+            if let Some(children) = self.tree.children(component_id) {
+                // Try to find the last focusable child (iterate in reverse)
+                for &child_id in children.iter().rev() {
+                    if self.try_enter_component(child_id) {
+                        // Recursively find the deepest focusable descendant of this child
+                        return self.find_focusable_descendant_last(child_id);
+                    }
                 }
-                if let Some(row_slot) = self.tree.cursor_row.get_mut(component_id) {
-                    *row_slot = current_row + 1;
-                }
-                true
-            } else if trying_to_move_left_beyond && current_row > min_row {
-                // Can wrap to previous line
-                if let Some(col_slot) = self.tree.cursor_col.get_mut(component_id) {
-                    *col_slot = effective_max_col;
-                }
-                if let Some(row_slot) = self.tree.cursor_row.get_mut(component_id) {
-                    *row_slot = current_row - 1;
-                }
-                true
-            } else {
-                false
-            };
+            }
+            // No focusable children, return this component
+            return component_id;
+        }
 
-            // If we didn't wrap, clamp the cursor to content bounds
-            if !wrapped {
-                let clamped_col = new_col.max(min_col).min(effective_max_col);
-                if let Some(col_slot) = self.tree.cursor_col.get_mut(component_id) {
-                    *col_slot = clamped_col;
+        // If not focusable, try to find a focusable descendant (iterate in reverse)
+        if let Some(children) = self.tree.children(component_id) {
+            for &child_id in children.iter().rev() {
+                if self.try_enter_component(child_id) {
+                    return self.find_focusable_descendant_last(child_id);
                 }
             }
         }
 
-        if row_delta != 0 {
-            // Vertical movement within wrapped content
-            let new_row = if row_delta < 0 {
-                current_row.saturating_sub((-row_delta) as u16)
-            } else {
-                current_row.saturating_add(row_delta as u16)
-            };
-
-            if let Some(row_slot) = self.tree.cursor_row.get_mut(component_id) {
-                *row_slot = new_row.max(min_row).min(max_row);
-            }
-        }
-
-        self.tree.mark_dirty(component_id);
+        // Shouldn't reach here if try_enter_component was already called
+        component_id
     }
 
     /// Get the cursor position, accounting for scroll offset (returns localized coordinates)
@@ -625,6 +652,16 @@ impl<'a> ComponentNode<'a> {
             ComponentNode::Component(component) => {
                 component.cursor_bounds(width, height, formatting)
             }
+        }
+    }
+
+    pub fn get_row_width(&self, row: u16, render_width: u16) -> u16 {
+        match self {
+            ComponentNode::Frame(_) => render_width,
+            ComponentNode::Status(component) => component.get_row_width(row, render_width),
+            ComponentNode::Text(component) => component.get_row_width(row, render_width),
+            ComponentNode::Debug(component) => component.get_row_width(row, render_width),
+            ComponentNode::Component(component) => component.get_row_width(row, render_width),
         }
     }
 }
@@ -1352,7 +1389,8 @@ impl<'a> ComponentTree<'a> {
                                 }
                             } else if child_y + child_height > final_scroll_y + visible_height {
                                 // Child is below visible range, scroll down to show it
-                                final_scroll_y = (child_y + child_height).saturating_sub(visible_height);
+                                final_scroll_y =
+                                    (child_y + child_height).saturating_sub(visible_height);
                                 if let Some(scroll) = self.scroll_y.get_mut(id) {
                                     *scroll = final_scroll_y;
                                 }
@@ -1383,8 +1421,8 @@ impl<'a> ComponentTree<'a> {
             buffer.set_scroll(scroll_x, final_scroll_y);
 
             // Convert absolute cursor position to relative position within visible area
-            let relative_row = (cursor_tree_row as usize).saturating_sub(final_scroll_y);
-            let relative_col = (cursor_tree_col as usize).saturating_sub(scroll_x) as u16;
+            let mut relative_row = (cursor_tree_row as usize).saturating_sub(final_scroll_y);
+            let mut relative_col = (cursor_tree_col as usize).saturating_sub(scroll_x) as u16;
 
             // Set cursor position in buffer as component-relative
             buffer.set_cursor_position(relative_col, relative_row as u16);
@@ -1415,6 +1453,34 @@ impl<'a> ComponentTree<'a> {
                                 stdout, &buffer, rect.x, rect.y, skip_lines, max_lines,
                             )?;
                         }
+                    }
+                }
+            }
+
+            // For wrapped components, calculate which visual wrapped line the cursor should appear on
+            if formatting.overflow_x == Overflow::Wrap && relative_col >= rect.width {
+                // Recalculate cursor position accounting for wrapping
+                let mut remaining_col = relative_col as usize;
+                let mut visual_row = relative_row;
+
+                // Walk through wrapped lines to find which visual row the cursor is on
+                loop {
+                    let row_width = rect.width as usize;
+                    if remaining_col < row_width {
+                        // Cursor falls within this visual row
+                        relative_col = remaining_col as u16;
+                        relative_row = visual_row;
+                        break;
+                    }
+
+                    remaining_col -= row_width;
+                    visual_row += 1;
+
+                    // Safety check: if we've gone beyond the visible area, clamp to last position
+                    if visual_row >= rect.height as usize {
+                        relative_row = (rect.height as usize).saturating_sub(1);
+                        relative_col = (rect.width as u16).saturating_sub(1);
+                        break;
                     }
                 }
             }
@@ -1845,7 +1911,86 @@ impl<'a> ComponentTree<'a> {
             }
         }
 
+        // After all components are initialized, ensure focus descends to first focusable child
+        self.ensure_focus_descends_to_leaf();
+
         Ok(())
+    }
+
+    /// Ensure the focused component descends to its first focusable child (recursively)
+    /// This is called after initialization to ensure components with children automatically
+    /// descend to the deepest focusable leaf
+    fn ensure_focus_descends_to_leaf(&mut self) {
+        let focused_id = self.focus;
+        let focus_id = self.find_deepest_focusable_descendant(focused_id);
+
+        if focus_id != focused_id {
+            self.focus = focus_id;
+            self.focus_path = self.build_focus_path(focus_id);
+            self.mark_dirty(focus_id);
+        }
+    }
+
+    /// Find the deepest focusable descendant of a component (for use during initialization)
+    /// This is similar to the logic in ComponentCommands but works within the tree
+    fn find_deepest_focusable_descendant(&self, component_id: ComponentId) -> ComponentId {
+        let formatting = self
+            .formatting
+            .get(component_id)
+            .copied()
+            .unwrap_or_default();
+
+        // If this component is focusable, check if it has focusable children to descend into
+        if formatting.focusable {
+            if let Some(children) = self.children(component_id) {
+                // Try to find the first focusable child
+                for &child_id in &children {
+                    let child_formatting =
+                        self.formatting.get(child_id).copied().unwrap_or_default();
+                    if self.is_focusable_or_has_focusable_child(child_id, child_formatting) {
+                        // Recursively find the deepest focusable descendant of this child
+                        return self.find_deepest_focusable_descendant(child_id);
+                    }
+                }
+            }
+            // No focusable children, return this component
+            return component_id;
+        }
+
+        // If not focusable, try to find a focusable descendant
+        if let Some(children) = self.children(component_id) {
+            for &child_id in &children {
+                let child_formatting = self.formatting.get(child_id).copied().unwrap_or_default();
+                if self.is_focusable_or_has_focusable_child(child_id, child_formatting) {
+                    return self.find_deepest_focusable_descendant(child_id);
+                }
+            }
+        }
+
+        component_id
+    }
+
+    /// Helper to check if a component is focusable or has focusable children
+    fn is_focusable_or_has_focusable_child(
+        &self,
+        component_id: ComponentId,
+        formatting: Formatting,
+    ) -> bool {
+        if formatting.focusable {
+            return true;
+        }
+
+        // Check if this component has any focusable children
+        if let Some(children) = self.children(component_id) {
+            for &child_id in &children {
+                let child_formatting = self.formatting.get(child_id).copied().unwrap_or_default();
+                if self.is_focusable_or_has_focusable_child(child_id, child_formatting) {
+                    return true;
+                }
+            }
+        }
+
+        false
     }
 
     fn mark_dirty(&mut self, id: ComponentId) {
