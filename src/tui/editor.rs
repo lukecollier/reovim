@@ -5,7 +5,6 @@ use crossterm::{
     event::{KeyCode, KeyEvent},
     style::Color,
 };
-use unicode_width::{UnicodeWidthChar, UnicodeWidthStr};
 
 use crate::{
     event::ReovimEvent,

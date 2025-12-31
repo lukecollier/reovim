@@ -643,8 +643,6 @@ pub struct ComponentTree<'a> {
     cursor_col: Vec<u16>,
     /// cursor_row[i] is the cursor row for component i
     cursor_row: Vec<u16>,
-    /// last_cursor_row[i] is the cursor row from the previous frame for component i
-    last_cursor_row: Vec<u16>,
     /// cursor_initialized[i] tracks whether cursor has been set to minimum bounds for component i
     cursor_initialized: Vec<bool>,
     /// cursor_style[i] is the display style for the cursor of component i
@@ -675,7 +673,6 @@ impl<'a> ComponentTree<'a> {
             scroll_y: vec![0],
             cursor_col: vec![0],
             cursor_row: vec![0],
-            last_cursor_row: vec![0],
             cursor_initialized: vec![false],
             cursor_style: vec![CursorStyle::default()],
             focus_path: vec![0], // Start with root in focus path
@@ -729,7 +726,6 @@ impl<'a> ComponentTree<'a> {
         // Cursor will be initialized to minimum bounds after first layout
         self.cursor_col.push(0);
         self.cursor_row.push(0);
-        self.last_cursor_row.push(0);
         self.cursor_initialized.push(false);
         self.cursor_style.push(CursorStyle::default());
 
@@ -1338,9 +1334,6 @@ impl<'a> ComponentTree<'a> {
         // Hide cursor during rendering
         stdout.execute(Hide)?;
 
-        // Clear previous cursor position
-        self.cursor_pos = None;
-
         // Render all nodes
         self.render_node(self.root, stdout)?;
 
@@ -1377,105 +1370,6 @@ impl<'a> ComponentTree<'a> {
 
         // Handle cursor position and scrolling for focused component (before rendering)
         let mut final_scroll_y = scroll_y;
-        if id == self.focus {
-            let last_cursor_row = self.last_cursor_row.get(id).copied().unwrap_or(0);
-
-            // Clamp cursor to visible range (for mouse scrolling)
-            if formatting.overflow_y == Overflow::Scroll {
-                let (_, logical_height) = self.measure_logical_bounds(id);
-                let min_row = 0u16;
-                let max_row = logical_height.saturating_sub(1);
-                let visible_height = rect.height as usize;
-
-                // Only clamp if cursor is within valid bounds
-                if cursor_tree_row >= min_row && cursor_tree_row <= max_row {
-                    // If cursor is above visible range, move it to the top
-                    if cursor_tree_row < final_scroll_y as u16 {
-                        if let Some(cursor) = self.cursor_row.get_mut(id) {
-                            *cursor = final_scroll_y as u16;
-                        }
-                        self.mark_dirty(id);
-                    } else if cursor_tree_row >= (final_scroll_y + visible_height) as u16 {
-                        // If cursor is below visible range, move it to the bottom
-                        let new_cursor_row =
-                            (final_scroll_y + visible_height.saturating_sub(1)) as u16;
-                        if let Some(cursor) = self.cursor_row.get_mut(id) {
-                            *cursor = new_cursor_row;
-                        }
-                        self.mark_dirty(id);
-                    }
-                }
-            }
-        }
-
-        // Scroll focused children into view (accounting for wrapped children's visual heights)
-        if formatting.overflow_y == Overflow::Scroll && formatting.layout_mode == LayoutMode::VerticalSplit {
-            if let Some(child_ids) = self.children(id) {
-                // Build a map of child index to visual row position
-                let mut child_visual_rows = Vec::new();
-                let mut current_visual_row = 0;
-
-                for child_id in &child_ids {
-                    child_visual_rows.push(current_visual_row);
-                    if let Some(child_rect) = self.rects.get(*child_id) {
-                        current_visual_row += child_rect.height as usize;
-                    }
-                }
-
-                // Find if any child is in the focus path
-                for focus_id in &self.focus_path {
-                    if let Some(child_index) = child_ids.iter().position(|&cid| cid == *focus_id) {
-                        // Get the visual row position of the focused child
-                        let focused_visual_start = child_visual_rows[child_index];
-                        let focused_visual_end = if let Some(child_rect) = self.rects.get(child_ids[child_index]) {
-                            focused_visual_start + child_rect.height as usize
-                        } else {
-                            focused_visual_start + 1
-                        };
-
-                        // Calculate current visible visual row range
-                        let visible_visual_start = child_visual_rows.get(final_scroll_y).copied().unwrap_or(0);
-                        let visible_visual_end = visible_visual_start + rect.height as usize;
-
-                        // Check if focused child is outside visible range
-                        if focused_visual_start < visible_visual_start {
-                            // Child is above visible range, scroll to show it
-                            final_scroll_y = child_index;
-                            if let Some(scroll) = self.scroll_y.get_mut(id) {
-                                *scroll = final_scroll_y;
-                            }
-                            self.mark_dirty(id);
-                            for child_id in &child_ids {
-                                self.mark_dirty(*child_id);
-                            }
-                        } else if focused_visual_start >= visible_visual_end {
-                            // Child is completely below visible range, scroll incrementally
-                            final_scroll_y = final_scroll_y + 1;
-                            if let Some(scroll) = self.scroll_y.get_mut(id) {
-                                *scroll = final_scroll_y;
-                            }
-                            self.mark_dirty(id);
-                            for child_id in &child_ids {
-                                self.mark_dirty(*child_id);
-                            }
-                        } else if focused_visual_start < visible_visual_end && focused_visual_end > visible_visual_end {
-                            // Child starts within visible range but extends past the boundary
-                            // This means it would be clipped by atomic rendering
-                            // Scroll incrementally by moving to the next child
-                            final_scroll_y = final_scroll_y + 1;
-                            if let Some(scroll) = self.scroll_y.get_mut(id) {
-                                *scroll = final_scroll_y;
-                            }
-                            self.mark_dirty(id);
-                            for child_id in &child_ids {
-                                self.mark_dirty(*child_id);
-                            }
-                        }
-                        break; // Only scroll for the first focused child in this parent
-                    }
-                }
-            }
-        }
 
         // Now get the component after all mutable operations are done
         if let Some(component) = self.components.get(id) {
@@ -1562,13 +1456,6 @@ impl<'a> ComponentTree<'a> {
                 let cursor_row = rect.y + relative_row as u16;
                 self.cursor_pos = Some((cursor_col, cursor_row));
             }
-
-            // Update last_cursor_row for next frame's change detection
-            if id == self.focus {
-                if let Some(last_row) = self.last_cursor_row.get_mut(id) {
-                    *last_row = cursor_tree_row;
-                }
-            }
         }
 
         // Render children
@@ -1609,6 +1496,77 @@ impl<'a> ComponentTree<'a> {
                 }
             }
 
+            // Update focus if focused child has scrolled out of view
+            if formatting.layout_mode == LayoutMode::VerticalSplit {
+                let visible_end = parent_scroll_y + (parent_rect.height as usize);
+
+                // Find which direct child of this container is an ancestor of the current focus
+                let mut focused_component = self.focus;
+                let mut focused_child_of_container = None;
+
+                // Trace up from focus until we find a child of this container or reach the root
+                loop {
+                    if let Some(parent_id) = self.parent.get(focused_component).and_then(|p| *p) {
+                        if parent_id == id {
+                            // This is a direct child of our container
+                            focused_child_of_container = Some(focused_component);
+                            break;
+                        }
+                        focused_component = parent_id;
+                    } else {
+                        // We've reached the root without finding a child of this container
+                        break;
+                    }
+                }
+
+                // If we found a focused child of this container, check if it's in the visible range
+                if let Some(focused_child) = focused_child_of_container {
+                    // Find the index of the focused child
+                    let focused_child_index = child_ids_vec.iter().position(|&c| c == focused_child);
+
+                    if let Some(child_idx) = focused_child_index {
+                        if child_idx < parent_scroll_y {
+                            // Focused child is above visible range, clamp to first visible
+                            if let Some(closest_child) = child_ids_vec.get(parent_scroll_y) {
+                                let deepest = self.find_last_focusable_descendant(*closest_child);
+                                // Get cursor position from the leaf component that we're moving focus away from
+                                if let (Some(old_cursor_col), Some(old_cursor_row)) =
+                                    (self.cursor_col.get(self.focus).copied(), self.cursor_row.get(self.focus).copied()) {
+                                    // Set the same cursor position in the new focused component
+                                    if let Some(cursor_col_slot) = self.cursor_col.get_mut(deepest) {
+                                        *cursor_col_slot = old_cursor_col;
+                                    }
+                                    if let Some(cursor_row_slot) = self.cursor_row.get_mut(deepest) {
+                                        *cursor_row_slot = old_cursor_row;
+                                    }
+                                }
+                                self.focus = deepest;
+                                self.update_focus_path();
+                            }
+                        } else if child_idx >= visible_end {
+                            // Focused child is below visible range, clamp to last visible
+                            let last_visible_idx = (visible_end - 1).min(child_ids_vec.len() - 1);
+                            if let Some(closest_child) = child_ids_vec.get(last_visible_idx) {
+                                let deepest = self.find_last_focusable_descendant(*closest_child);
+                                // Get cursor position from the leaf component that we're moving focus away from
+                                if let (Some(old_cursor_col), Some(old_cursor_row)) =
+                                    (self.cursor_col.get(self.focus).copied(), self.cursor_row.get(self.focus).copied()) {
+                                    // Set the same cursor position in the new focused component
+                                    if let Some(cursor_col_slot) = self.cursor_col.get_mut(deepest) {
+                                        *cursor_col_slot = old_cursor_col;
+                                    }
+                                    if let Some(cursor_row_slot) = self.cursor_row.get_mut(deepest) {
+                                        *cursor_row_slot = old_cursor_row;
+                                    }
+                                }
+                                self.focus = deepest;
+                                self.update_focus_path();
+                            }
+                        }
+                    }
+                }
+            }
+
             // Limit scrolling: prevent scrolling past the last child
             if formatting.overflow_y == Overflow::Scroll && !child_ids_vec.is_empty() {
                 // Maximum scroll index is the number of children
@@ -1628,7 +1586,9 @@ impl<'a> ComponentTree<'a> {
 
             for (child_index, child_id) in child_ids_vec.iter().enumerate() {
                 // For vertical layouts, skip children before the scroll position
-                if formatting.layout_mode == LayoutMode::VerticalSplit && child_index < final_scroll_y {
+                if formatting.layout_mode == LayoutMode::VerticalSplit
+                    && child_index < final_scroll_y
+                {
                     continue;
                 }
 
@@ -1642,12 +1602,16 @@ impl<'a> ComponentTree<'a> {
                 };
 
                 // Stop if this child would render completely below the parent (vertical layouts only)
-                if formatting.layout_mode == LayoutMode::VerticalSplit && current_screen_y >= parent_rect.y + parent_rect.height {
+                if formatting.layout_mode == LayoutMode::VerticalSplit
+                    && current_screen_y >= parent_rect.y + parent_rect.height
+                {
                     break;
                 }
 
                 // Stop if child doesn't fit completely in visible range (atomic rendering, vertical only)
-                if formatting.layout_mode == LayoutMode::VerticalSplit && current_screen_y + child_height as u16 > parent_rect.y + parent_rect.height {
+                if formatting.layout_mode == LayoutMode::VerticalSplit
+                    && current_screen_y + child_height as u16 > parent_rect.y + parent_rect.height
+                {
                     break;
                 }
 
@@ -1941,6 +1905,139 @@ impl<'a> ComponentTree<'a> {
         Ok(())
     }
 
+    /// Find the scrollable container at the given screen position
+    fn find_scrollable_container_at(&self, col: u16, row: u16) -> Option<ComponentId> {
+        // Traverse all components to find which one contains this position
+        let mut result = None;
+        for (id, rect) in self.rects.iter().enumerate() {
+            if rect.contains(col, row) {
+                result = Some(id);
+            }
+        }
+
+        // If we found a component, find its scrollable container ancestor
+        if let Some(mut component_id) = result {
+            loop {
+                let formatting = self
+                    .formatting
+                    .get(component_id)
+                    .copied()
+                    .unwrap_or_default();
+
+                // Check if this component is a scrollable container with children
+                if formatting.overflow_y == Overflow::Scroll {
+                    if let Some(children) = self.children(component_id) {
+                        if !children.is_empty() {
+                            return Some(component_id);
+                        }
+                    }
+                }
+
+                // Move to parent if it exists
+                if let Some(parent_id) = self.parent.get(component_id).and_then(|p| *p) {
+                    component_id = parent_id;
+                } else {
+                    break;
+                }
+            }
+        }
+
+        None
+    }
+
+    /// Check if child is a descendant of parent
+    fn is_descendant_of(&self, potential_parent: ComponentId, child: ComponentId) -> bool {
+        let mut current = child;
+        while let Some(parent) = self.parent.get(current).and_then(|p| *p) {
+            if parent == potential_parent {
+                return true;
+            }
+            current = parent;
+        }
+        false
+    }
+
+    /// Update the focus path to match current focus
+    fn update_focus_path(&mut self) {
+        self.focus_path.clear();
+        let mut current = self.focus;
+        while let Some(parent) = self.parent.get(current).and_then(|p| *p) {
+            self.focus_path.insert(0, current);
+            current = parent;
+        }
+        self.focus_path.insert(0, current); // Add root
+    }
+
+    /// Find the last focusable descendant of a component
+    fn find_last_focusable_descendant(&self, id: ComponentId) -> ComponentId {
+        // Check if this component is focusable
+        let formatting = self.formatting.get(id).copied().unwrap_or_default();
+        if !formatting.focusable {
+            return id; // Return the component even if not focusable, better than nothing
+        }
+
+        // Try to find focusable descendants
+        if let Some(children) = self.children(id) {
+            if !children.is_empty() {
+                // Recursively check the last child
+                if let Some(&last_child) = children.last() {
+                    return self.find_last_focusable_descendant(last_child);
+                }
+            }
+        }
+
+        // No focusable descendants, return this component
+        id
+    }
+
+    /// Scroll a component by the given amount in the Y direction
+    fn scroll_by(&mut self, id: ComponentId, amount: isize) {
+        let current_scroll = self.scroll_y.get(id).copied().unwrap_or(0);
+
+        // Calculate new scroll with bounds checking
+        let new_scroll = if amount > 0 {
+            let max_scroll = if let Some(child_ids) = self.children(id) {
+                child_ids.len().saturating_sub(1)
+            } else {
+                0
+            };
+            (current_scroll as isize + amount)
+                .min(max_scroll as isize)
+                .max(0) as usize
+        } else {
+            (current_scroll as isize + amount).max(0) as usize
+        };
+
+        if new_scroll != current_scroll {
+            self.scroll_y.insert(id, new_scroll);
+            self.mark_dirty(id);
+            if let Some(child_ids) = self.children(id) {
+                for child_id in child_ids {
+                    self.mark_dirty(child_id);
+                }
+            }
+
+
+            // Clamp cursor to visible range after scrolling
+            let rect = self.rects.get(id).copied().unwrap_or_default();
+            let visible_height = rect.height as usize;
+            let cursor_tree_row = self.cursor_row.get(id).copied().unwrap_or(0);
+
+            // If cursor is above visible range, move it to the top
+            if (cursor_tree_row as usize) < new_scroll {
+                if let Some(cursor) = self.cursor_row.get_mut(id) {
+                    *cursor = new_scroll as u16;
+                }
+            } else if (cursor_tree_row as usize) >= new_scroll + visible_height {
+                // If cursor is below visible range, move it to the bottom
+                let new_cursor_row = (new_scroll + visible_height.saturating_sub(1)) as u16;
+                if let Some(cursor) = self.cursor_row.get_mut(id) {
+                    *cursor = new_cursor_row;
+                }
+            }
+        }
+    }
+
     /// Handle an event for the entire tree
     pub fn update(&mut self, event: ReovimEvent) -> Result<()> {
         // Handle scroll events at tree level
@@ -1954,36 +2051,19 @@ impl<'a> ComponentTree<'a> {
                     return Ok(());
                 }
                 MouseEventKind::ScrollUp => {
-                    let current_scroll = self.scroll_y.get(self.focus).copied().unwrap_or(0);
-                    let new_scroll = current_scroll.saturating_sub(1);
-
-                    // Get scroll bounds from the focused component
-                    self.scroll_y.insert(self.focus, new_scroll);
-
-                    self.mark_dirty(self.focus);
+                    if let Some(container_id) =
+                        self.find_scrollable_container_at(mouse_event.column, mouse_event.row)
+                    {
+                        self.scroll_by(container_id, -1);
+                    }
                     return Ok(());
                 }
                 MouseEventKind::ScrollDown => {
-                    let current_scroll = self.scroll_y.get(self.focus).copied().unwrap_or(0);
-
-                    // Get the max scroll position from the last child, same as render_node logic
-                    let mut max_scroll = current_scroll; // Default to current if no children
-                    if let Some(child_ids_vec) = self.children(self.focus) {
-                        if !child_ids_vec.is_empty() {
-                            if let Some(last_child_id) = child_ids_vec.last() {
-                                if let Some(child_rect) = self.rects.get(*last_child_id) {
-                                    max_scroll = child_rect.y as usize;
-                                }
-                            }
-                        }
+                    if let Some(container_id) =
+                        self.find_scrollable_container_at(mouse_event.column, mouse_event.row)
+                    {
+                        self.scroll_by(container_id, 1);
                     }
-
-                    // Clamp to prevent scrolling past the end
-                    let new_scroll = (current_scroll + 1).min(max_scroll);
-
-                    self.scroll_y.insert(self.focus, new_scroll);
-
-                    self.mark_dirty(self.focus);
                     return Ok(());
                 }
                 _ => {}
