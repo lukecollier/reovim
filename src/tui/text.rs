@@ -329,7 +329,7 @@ impl<'a> TextComponent<'a> {
 }
 
 impl<'a> Component for TextComponent<'a> {
-    fn render(&self, buffer: &mut TerminalBuffer) -> Result<()> {
+    fn render(&self, buffer: &mut TerminalBuffer, _query: crate::tui::ComponentQuery) -> Result<()> {
         // Get scroll offset from buffer
         let (_, scroll_y) = buffer.scroll();
         let start_at = scroll_y;

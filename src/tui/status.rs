@@ -25,7 +25,7 @@ fn pad_or_truncate(s: &str, width: u16) -> String {
 }
 
 impl Component for StatusComponent {
-    fn render(&self, buffer: &mut TerminalBuffer) -> Result<()> {
+    fn render(&self, buffer: &mut TerminalBuffer, _query: crate::tui::ComponentQuery) -> Result<()> {
         let status_line_str = pad_or_truncate(&self.file_name, buffer.width());
         buffer
             .set_background(Color::Black)

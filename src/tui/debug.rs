@@ -34,7 +34,7 @@ impl DebugComponent {
 }
 
 impl<'a> Component for DebugComponent {
-    fn render(&self, buffer: &mut TerminalBuffer) -> Result<()> {
+    fn render(&self, buffer: &mut TerminalBuffer, _query: crate::tui::ComponentQuery) -> Result<()> {
         buffer.set_background(self.color);
 
         // Fill the entire buffer with the color

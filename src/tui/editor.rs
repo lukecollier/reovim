@@ -46,7 +46,11 @@ impl TextGutter {
 }
 
 impl Component for TextGutter {
-    fn render(&self, buffer: &mut super::terminal_buffer::TerminalBuffer) -> anyhow::Result<()> {
+    fn render(
+        &self,
+        buffer: &mut super::terminal_buffer::TerminalBuffer,
+        _query: crate::tui::ComponentQuery,
+    ) -> anyhow::Result<()> {
         // Just write the content - let the composite functions handle wrapping
         let width = self.width;
         buffer
@@ -70,41 +74,29 @@ impl Component for TextGutter {
 }
 
 struct TextContent {
-    selected: bool,
     content: Rc<RefCell<String>>,
 }
 
 impl TextContent {
-    fn new(selected: bool, content: Rc<RefCell<String>>) -> Self {
-        Self { selected, content }
+    fn new(content: Rc<RefCell<String>>) -> Self {
+        Self { content }
     }
 }
 
 impl Component for TextContent {
-    fn render(&self, buffer: &mut super::terminal_buffer::TerminalBuffer) -> anyhow::Result<()> {
+    fn render(
+        &self,
+        buffer: &mut super::terminal_buffer::TerminalBuffer,
+        query: crate::tui::ComponentQuery,
+    ) -> anyhow::Result<()> {
         // Just write the content - let the composite functions handle wrapping
-        if self.selected {
+        if query.has_focus() {
             buffer.set_background(Color::DarkGrey);
         } else {
             buffer.set_background(Color::Reset);
         }
         buffer.write(&*self.content.borrow());
         Ok(())
-    }
-    fn update(
-        &mut self,
-        _event: ReovimEvent,
-        commands: &mut super::tree::ComponentCommands,
-    ) -> Result<bool> {
-        if self.selected == commands.has_focus() {
-            Ok(false)
-        } else if commands.has_focus() {
-            self.selected = true;
-            Ok(true)
-        } else {
-            self.selected = false;
-            Ok(true)
-        }
     }
     fn default_formatting(&self) -> Formatting {
         Formatting {
@@ -145,7 +137,7 @@ impl TextRow {
 impl Component for TextRow {
     fn children(&mut self, commands: &mut super::tree::ComponentCommands) -> Result<()> {
         commands.add_component(TextGutter::new(self.line_number, self.line_number_width))?;
-        commands.add_component(TextContent::new(false, self.content.clone()))?;
+        commands.add_component(TextContent::new(self.content.clone()))?;
         Ok(())
     }
     fn default_formatting(&self) -> Formatting {
@@ -295,7 +287,11 @@ impl Component for Editor {
         return Ok(false);
     }
 
-    fn render(&self, _buffer: &mut super::terminal_buffer::TerminalBuffer) -> anyhow::Result<()> {
+    fn render(
+        &self,
+        _buffer: &mut super::terminal_buffer::TerminalBuffer,
+        _query: crate::tui::ComponentQuery,
+    ) -> anyhow::Result<()> {
         Ok(())
     }
 }

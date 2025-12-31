@@ -4,7 +4,7 @@ use crate::tui::status::StatusComponent;
 use crate::tui::terminal_buffer::{TerminalBuffer, TerminalCommand};
 use crate::tui::text::TextComponent;
 use crate::tui::{
-    Component, Cursor, CursorStyle, Formatting, LayoutMode, Measurement, Overflow, Rect,
+    Component, ComponentQuery, Cursor, CursorStyle, Formatting, LayoutMode, Measurement, Overflow, Rect,
 };
 use anyhow::Result;
 use crossterm::ExecutableCommand;
@@ -575,16 +575,16 @@ pub enum ComponentNode<'a> {
 }
 
 impl<'a> ComponentNode<'a> {
-    pub fn render(&self, buffer: &mut TerminalBuffer) -> Result<()> {
+    pub fn render(&self, buffer: &mut TerminalBuffer, query: ComponentQuery) -> Result<()> {
         match self {
             ComponentNode::Frame(_) => {
                 // Frames don't render themselves, only their children
                 Ok(())
             }
-            ComponentNode::Status(status_component) => status_component.render(buffer),
-            ComponentNode::Text(text_component) => text_component.render(buffer),
-            ComponentNode::Debug(component) => component.render(buffer),
-            ComponentNode::Component(component) => component.render(buffer),
+            ComponentNode::Status(status_component) => status_component.render(buffer, query),
+            ComponentNode::Text(text_component) => text_component.render(buffer, query),
+            ComponentNode::Debug(component) => component.render(buffer, query),
+            ComponentNode::Component(component) => component.render(buffer, query),
         }
     }
 
@@ -873,7 +873,10 @@ impl<'a> ComponentTree<'a> {
         let mut buffer = TerminalBuffer::new(max_width, max_height);
 
         if let Some(component) = self.components.get(id) {
-            let _ = component.render(&mut buffer);
+            let query = ComponentQuery {
+                focus: self.focus_path.contains(&id),
+            };
+            let _ = component.render(&mut buffer, query);
             buffer.measure_content()
         } else {
             (0, 0)
@@ -923,7 +926,10 @@ impl<'a> ComponentTree<'a> {
         let mut buffer = TerminalBuffer::new(u16::MAX, u16::MAX);
 
         if let Some(component) = self.components.get(id) {
-            let _ = component.render(&mut buffer);
+            let query = ComponentQuery {
+                focus: self.focus_path.contains(&id),
+            };
+            let _ = component.render(&mut buffer, query);
             buffer.measure_content()
         } else {
             (0, 0)
@@ -936,7 +942,10 @@ impl<'a> ComponentTree<'a> {
         let mut buffer = TerminalBuffer::new(render_width, u16::MAX);
 
         if let Some(component) = self.components.get(id) {
-            let _ = component.render(&mut buffer);
+            let query = ComponentQuery {
+                focus: self.focus_path.contains(&id),
+            };
+            let _ = component.render(&mut buffer, query);
 
             // Count visual rows by tracking when we exceed render_width
             let mut visual_height = 1u16;
@@ -972,7 +981,10 @@ impl<'a> ComponentTree<'a> {
         let mut buffer = TerminalBuffer::new(render_width, u16::MAX);
 
         if let Some(component) = self.components.get(id) {
-            let _ = component.render(&mut buffer);
+            let query = ComponentQuery {
+                focus: self.focus_path.contains(&id),
+            };
+            let _ = component.render(&mut buffer, query);
 
             // Extract text from buffer commands
             let mut text = String::new();
@@ -1506,7 +1518,10 @@ impl<'a> ComponentTree<'a> {
 
             // Render component into the virtual buffer
             if is_dirty_now {
-                component.render(&mut buffer)?;
+                let query = ComponentQuery {
+                    focus: self.focus_path.contains(&id),
+                };
+                component.render(&mut buffer, query)?;
 
                 // Only composite if the buffer has content
                 if !buffer.commands().is_empty() {
@@ -2051,23 +2066,85 @@ impl<'a> ComponentTree<'a> {
         if new_scroll != current_scroll {
             self.scroll_y.insert(id, new_scroll);
             self.mark_dirty(id);
+
+            // Get the viewport height to determine visible range
+            let rect = self.rects.get(id).copied().unwrap_or_default();
+            let visible_height = rect.height as usize;
+
             if let Some(child_ids_vec) = self.children(id) {
                 for child_id in &child_ids_vec {
                     self.mark_dirty(*child_id);
                 }
 
-                // Focus the first visible child at the new scroll position
-                if let Some(first_visible_child) = child_ids_vec.get(new_scroll) {
-                    let deepest = self.find_last_focusable_descendant(*first_visible_child);
-                    self.focus = deepest;
-                    self.update_focus_path();
+                // Find which child is currently focused (if any)
+                let focused_child_index = if self.focus_path.contains(&id) {
+                    // Find the direct child of this container that's in our focus path
+                    let mut focused_child = None;
+                    for child_id in &child_ids_vec {
+                        if self.focus_path.contains(child_id) {
+                            focused_child = Some(*child_id);
+                            break;
+                        }
+                    }
+                    focused_child.and_then(|child| {
+                        child_ids_vec.iter().position(|&c| c == child)
+                    })
+                } else {
+                    None
+                };
+
+                // Check if the focused child is still visible in the new viewport
+                let focus_out_of_view = if let Some(idx) = focused_child_index {
+                    idx < new_scroll || idx >= new_scroll + visible_height
+                } else {
+                    true // No focused child, so update focus
+                };
+
+                // Only update focus if the previously focused child is no longer visible
+                if focus_out_of_view {
+                    if let Some(idx) = focused_child_index {
+                        // Clamp focus to the closest visible child
+                        if idx < new_scroll {
+                            // Focused child was scrolled above, clamp to first visible child
+                            if let Some(first_visible_child) = child_ids_vec.get(new_scroll) {
+                                let deepest = self.find_last_focusable_descendant(*first_visible_child);
+                                self.focus = deepest;
+                                self.update_focus_path();
+                                // Update container's cursor to point to this child
+                                if let Some(cursor) = self.cursor_row.get_mut(id) {
+                                    *cursor = new_scroll as u16;
+                                }
+                            }
+                        } else {
+                            // Focused child was scrolled below, clamp to last visible child
+                            let last_visible_idx = (new_scroll + visible_height).saturating_sub(1).min(child_ids_vec.len() - 1);
+                            if let Some(last_visible_child) = child_ids_vec.get(last_visible_idx) {
+                                let deepest = self.find_last_focusable_descendant(*last_visible_child);
+                                self.focus = deepest;
+                                self.update_focus_path();
+                                // Update container's cursor to point to this child
+                                if let Some(cursor) = self.cursor_row.get_mut(id) {
+                                    *cursor = last_visible_idx as u16;
+                                }
+                            }
+                        }
+                    } else {
+                        // No previously focused child, focus the first visible child
+                        if let Some(first_visible_child) = child_ids_vec.get(new_scroll) {
+                            let deepest = self.find_last_focusable_descendant(*first_visible_child);
+                            self.focus = deepest;
+                            self.update_focus_path();
+                            // Update container's cursor to point to this child
+                            if let Some(cursor) = self.cursor_row.get_mut(id) {
+                                *cursor = new_scroll as u16;
+                            }
+                        }
+                    }
                 }
             }
 
 
             // Clamp cursor to visible range after scrolling
-            let rect = self.rects.get(id).copied().unwrap_or_default();
-            let visible_height = rect.height as usize;
             let cursor_tree_row = self.cursor_row.get(id).copied().unwrap_or(0);
 
             // If cursor is above visible range, move it to the top

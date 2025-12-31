@@ -8,7 +8,7 @@ pub struct CommandComponent {
 }
 
 impl<'a> Component for CommandComponent {
-    fn render(&self, _buffer: &mut TerminalBuffer) -> Result<()> {
+    fn render(&self, _buffer: &mut TerminalBuffer, _query: crate::tui::ComponentQuery) -> Result<()> {
         Ok(())
     }
 

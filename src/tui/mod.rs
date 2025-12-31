@@ -63,6 +63,17 @@ pub struct Rect {
     pub height: u16,
 }
 
+#[derive(Debug, Clone, Copy)]
+pub struct ComponentQuery {
+    focus: bool,
+}
+
+impl ComponentQuery {
+    fn has_focus(&self) -> bool {
+        self.focus
+    }
+}
+
 impl Rect {
     fn empty() -> Self {
         Self {
@@ -137,7 +148,11 @@ impl Default for Formatting {
 
 pub trait Component {
     /// Render the component to the given terminal buffer
-    fn render(&self, _buffer: &mut terminal_buffer::TerminalBuffer) -> Result<()> {
+    fn render(
+        &self,
+        _buffer: &mut terminal_buffer::TerminalBuffer,
+        _query: ComponentQuery,
+    ) -> Result<()> {
         Ok(())
     }
 
