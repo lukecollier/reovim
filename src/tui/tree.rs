@@ -337,9 +337,11 @@ impl<'a> ComponentCommands<'a> {
             // Determine next sibling based on movement direction
             let current_pos = (parent_row as usize).min(siblings.len() - 1);
             let next_pos = if row_delta > 0 || col_delta > 0 {
-                (current_pos + 1).min(siblings.len() - 1)
+                let delta = if row_delta > 0 { row_delta } else { col_delta } as usize;
+                (current_pos + delta).min(siblings.len() - 1)
             } else if row_delta < 0 || col_delta < 0 {
-                current_pos.saturating_sub(1)
+                let delta = if row_delta < 0 { (-row_delta) as usize } else { (-col_delta) as usize };
+                current_pos.saturating_sub(delta)
             } else {
                 return;
             };
@@ -2050,18 +2052,15 @@ impl<'a> ComponentTree<'a> {
         let current_scroll = self.scroll_y.get(id).copied().unwrap_or(0);
 
         // Calculate new scroll with bounds checking
-        let new_scroll = if amount > 0 {
-            let max_scroll = if let Some(child_ids) = self.children(id) {
-                child_ids.len().saturating_sub(1)
-            } else {
-                0
-            };
-            (current_scroll as isize + amount)
-                .min(max_scroll as isize)
-                .max(0) as usize
+        let max_scroll = if let Some(child_ids) = self.children(id) {
+            child_ids.len().saturating_sub(1)
         } else {
-            (current_scroll as isize + amount).max(0) as usize
+            0
         };
+
+        let new_scroll = ((current_scroll as isize + amount)
+            .max(0) as usize)
+            .min(max_scroll);
 
         if new_scroll != current_scroll {
             self.scroll_y.insert(id, new_scroll);
@@ -2095,7 +2094,12 @@ impl<'a> ComponentTree<'a> {
 
                 // Check if the focused child is still visible in the new viewport
                 let focus_out_of_view = if let Some(idx) = focused_child_index {
-                    idx < new_scroll || idx >= new_scroll + visible_height
+                    if visible_height == 0 {
+                        // If viewport height is 0, don't update focus
+                        false
+                    } else {
+                        idx < new_scroll || idx >= new_scroll + visible_height
+                    }
                 } else {
                     true // No focused child, so update focus
                 };

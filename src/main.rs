@@ -17,6 +17,7 @@ use crossterm::{
 };
 use tracing::info;
 use tracing_subscriber::EnvFilter;
+mod render;
 
 use crate::tui::{editor::Editor, tree::ComponentTree};
 
